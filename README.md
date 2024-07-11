@@ -1,5 +1,5 @@
 # gols - ls with icons, written in go
-file list tool that uses nerdfonts to display icons
+file list tool for unix-like systems that uses nerdfonts to display icons
 ## instalation
 ### depedences:
 gccgo: https://go.dev/doc/install/gccgo
