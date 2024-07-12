@@ -1,27 +1,27 @@
-# This workflow will build a golang project
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-go
-
-name: Go
+name: Build and Upload Go Artifact
 
 on:
   push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+    branches: [ main ]
 
 jobs:
-
   build:
     runs-on: ubuntu-latest
+
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v3
 
-    - name: Set up Go
-      uses: actions/setup-go@v4
-      with:
-        go-version: '1.20'
+      - name: Setup Go environment
+        uses: actions/setup-go@v3
+        with:
+          go-version: '1.20'  # Adjust Go version as needed
 
-    - name: Build
-      run: go build -v ./gols.go
+      - name: Build Go file
+        run: go build -o ./gols.go .  # Replace with your Go file name
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: go-artifact
+          path: ls  # Replace with your Go file name
 
   
