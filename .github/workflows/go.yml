@@ -13,8 +13,8 @@ jobs:
 
       - name: Setup gccgo
         uses: Dup4/actions-setup-gcc@v1
-        with:
-          version: 12.4 
+        
+          
 
       - name: Build Go file
      
