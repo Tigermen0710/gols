@@ -11,18 +11,18 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Setup Go environment
-        uses: actions/setup-go@v3
+      - name: Setup gccgo
+        uses: Dup4/actions-setup-gcc@v1
         with:
-          go-version: '1.20'  
+          version: 12.4 
 
       - name: Build Go file
      
-        run: go build -o ./gols.go  
+        run: gccgo gols.go -o ls  
 
       - uses: actions/upload-artifact@v4
         with:
           name: go-artifact
-          path: gols  
+          path: ls  
 
   
