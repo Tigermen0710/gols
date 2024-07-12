@@ -23,7 +23,7 @@ var (
 )
 
 const (
-	maxFilesInLine    = 3
+	maxFilesInLine    = 6
 	maxFileNameLength = 19
 )
 
@@ -82,7 +82,6 @@ func main() {
         os.Stdout.Sync()
     }()
 
-    // Your program logic here
     parseFlags()
 
     directory, err := os.Getwd()
