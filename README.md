@@ -6,6 +6,14 @@
 to display icons, providing a more visually appealing and informative output 
 compared to the traditional `ls` command.
 
+## Features
+
+- Lists files in columns with icons based on file extensions.
+- Supports long listing format (`-l`) similar to `ls -l`.
+- Displays file sizes in human-readable format (`-h`) similar to `ls -lh`.
+- Provides a help option (`-h`) to display usage instructions.
+
+
 ## Installation
 
 ### Dependencies
@@ -35,3 +43,18 @@ gols
 go install github.com/Tigermen0710/gols@latest
 ```
 NOTE: Your Go path must be set. Here's how to set it up: [Setup go path](https://go.dev/wiki/SettingGOPATH)
+
+## Examples
+
+```bash 
+gols # normal list
+```
+```bash 
+gols -l # longlist 
+```
+```bash 
+gols -lh # longlist human-readable
+```
+```bash
+gols -h # to show help options
+```
