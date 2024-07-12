@@ -18,11 +18,11 @@ jobs:
 
       - name: Build Go file
      
-        run: go mod init gols && go build -o ./gols.go  
+        run: go build -o ./gols.go  
 
       - uses: actions/upload-artifact@v4
         with:
           name: go-artifact
-          path: ls  
+          path: gols  
 
   
