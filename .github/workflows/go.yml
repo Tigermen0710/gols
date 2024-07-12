@@ -20,7 +20,7 @@ jobs:
 
       - name: Build Go file
      
-        run: go build gols.go -o ls  
+        run: go build -o ls gols.go
 
       - uses: actions/upload-artifact@v4
         with:
