@@ -76,23 +76,30 @@ var (
 )
 
 func main() {
-	parseFlags()
+    defer func() {
+        fmt.Println(" ")
+        fmt.Print("\033[0m") // Reset ANSI codes
+        os.Stdout.Sync()
+    }()
 
-	directory, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
-	}
+    // Your program logic here
+    parseFlags()
 
-	files, err := os.ReadDir(directory)
-	if err != nil {
-		log.Fatal(err)
-	}
+    directory, err := os.Getwd()
+    if err != nil {
+        log.Fatal(err)
+    }
 
-	if longListing {
-		printLongListing(files)
-	} else {
-		printFilesInColumns(files)
-	}
+    files, err := os.ReadDir(directory)
+    if err != nil {
+        log.Fatal(err)
+    }
+
+    if longListing {
+        printLongListing(files)
+    } else {
+        printFilesInColumns(files)
+    }
 }
 
 func parseFlags() {
