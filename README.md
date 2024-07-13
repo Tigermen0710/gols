@@ -1,5 +1,5 @@
 ![gols Logo](https://github.com/Tigermen0710/gols/assets/139358448/0fb308e6-df80-4cb5-840b-1221ff0b4478)
-[Imgur](https://imgur.com/aAPPN5F)
+[gols](gols.png)
 
 # gols - Enhanced `ls` with Icons, Written in Go
 
