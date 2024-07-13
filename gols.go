@@ -12,19 +12,19 @@ import (
 
 // ANSI escape codes for colors
 const (
-	reset   = "\033[0m"
-	red     = "\033[31m"
-	green   = "\033[32m"
-	yellow  = "\033[33m"
-	blue    = "\033[34m"
-	magenta = "\033[35m"
-	cyan    = "\033[36m"
-	white   = "\033[97m"
-	orange  = "\033[38;5;208m"
-	purple  = "\033[35m"
+	reset       = "\033[0m"
+	red         = "\033[31m"
+	green       = "\033[32m"
+	yellow      = "\033[33m"
+	blue        = "\033[34m"
+	magenta     = "\033[35m"
+	white       = "\033[97m"
+	cyan        = "\033[36m"
+	orange      = "\033[38;5;208m"
+	purple      = "\033[35m"
 	lightRed    = "\033[91m"
 	lightPurple = "\033[95m"
-	darkGreen = "\033[38;5;22m"
+	darkGreen   = "\033[38;5;22m"
 	darkOrange  = "\033[38;5;208m"
 	darkYellow  = "\033[38;5;172m"
 	darkMagenta = "\033[38;5;125m"
@@ -76,7 +76,7 @@ var (
 		".ps":   magenta + " " + reset,
 		".git":  orange + " " + reset,
 		".zig":  darkOrange + " " + reset,
-		".xbps":  darkGreen + " " + reset,
+		".xbps": darkGreen + " " + reset,
 	}
 
 	// Binary file extensions
@@ -88,9 +88,9 @@ var (
 func main() {
 	parseFlags()
 
-	directory, err := os.Getwd()
-	if err != nil {
-		log.Fatal(err)
+	directory := "."
+	if len(os.Args) > 1 && !strings.HasPrefix(os.Args[len(os.Args)-1], "-") {
+		directory = os.Args[len(os.Args)-1]
 	}
 
 	files, err := os.ReadDir(directory)
@@ -104,9 +104,9 @@ func main() {
 	}
 
 	if longListing {
-		printLongListing(files)
+		printLongListing(files, directory)
 	} else {
-		printFilesInColumns(files)
+		printFilesInColumns(files, directory)
 	}
 }
 
@@ -115,13 +115,16 @@ func parseFlags() {
 		switch arg {
 		case "-l":
 			longListing = true
-        case "-h":
+		case "-h":
 			showHelp()
 			os.Exit(0)
 		case "-lh":
 			longListing = true
 			humanReadable = true
 		default:
+			if !strings.HasPrefix(arg, "-") {
+				continue
+			}
 			showHelp()
 			os.Exit(1)
 		}
@@ -129,20 +132,20 @@ func parseFlags() {
 }
 
 func showHelp() {
-	fmt.Println("Usage: gols [options]")
+	fmt.Println("Usage: gols [options] [directory]")
 	fmt.Println("Options:")
 	fmt.Println("  -l    Long listing format")
 	fmt.Println("  -lh   Human-readable file sizes")
 	fmt.Println("  -h    Show options")
 }
 
-func printFilesInColumns(files []os.DirEntry) {
+func printFilesInColumns(files []os.DirEntry, directory string) {
 	maxFilesInLine := 6
 	maxFileNameLength := 19
 
 	filesInLine := 0
 	for _, file := range files {
-		printFile(file)
+		printFile(file, directory)
 		filesInLine++
 		if filesInLine >= maxFilesInLine || len(file.Name()) > maxFileNameLength {
 			fmt.Println()
@@ -154,7 +157,7 @@ func printFilesInColumns(files []os.DirEntry) {
 	fmt.Println() // Ensure a newline at the end
 }
 
-func printLongListing(files []os.DirEntry) {
+func printLongListing(files []os.DirEntry, directory string) {
 	for _, file := range files {
 		info, err := file.Info()
 		if err != nil {
@@ -207,17 +210,17 @@ func rwx(perm os.FileMode) string {
 	var b strings.Builder
 
 	if perm&0400 != 0 {
-		b.WriteString(red + "r")
+		b.WriteString(green + "r")
 	} else {
 		b.WriteString("-")
 	}
 	if perm&0200 != 0 {
-		b.WriteString(green + "w")
+		b.WriteString(yellow + "w")
 	} else {
 		b.WriteString("-")
 	}
 	if perm&0100 != 0 {
-		b.WriteString(magenta + "x")
+		b.WriteString(red + "x")
 	} else {
 		b.WriteString("-")
 	}
@@ -227,7 +230,7 @@ func rwx(perm os.FileMode) string {
 	return b.String()
 }
 
-func printFile(file os.DirEntry) {
+func printFile(file os.DirEntry, directory string) {
 	name := file.Name()
 	ext := strings.ToLower(filepath.Ext(name))
 	icon, exists := fileIcons[ext]
@@ -248,22 +251,34 @@ func printFile(file os.DirEntry) {
 
 	// Print modification time only if long listing is specified and info.ModTime() is not zero
 	if longListing && !file.IsDir() {
-		info, err := file.Info()
-		if err != nil {
-			log.Fatal(err)
-		}
-		modTime := info.ModTime()
-		if !modTime.IsZero() {
-			fmt.Printf(" %s", modTime.Format("Jan 02 15:04"))
+		info, err := os.Stat(filepath.Join(directory, file.Name()))
+		if err == nil && !info.ModTime().IsZero() {
+			fmt.Printf("  %s", info.ModTime().Format("Jan 02 15:04"))
 		}
 	}
 }
 
-func printPadding(name string, maxLength int) {
-	padding := maxLength - len(name)
-	if padding > 0 {
-		fmt.Print(strings.Repeat(" ", padding+1))
+func printPadding(fileName string, maxFileNameLength int) {
+	padding := maxFileNameLength - len(fileName) + 2
+	for i := 0; i < padding; i++ {
+		fmt.Print(" ")
 	}
+}
+
+func getFileIcon(fileName string) string {
+	ext := strings.ToLower(filepath.Ext(fileName))
+	icon, exists := fileIcons[ext]
+	if exists {
+		return icon
+	}
+	if isBinary(ext) {
+		return green + " " + reset
+	}
+	return white + " " + reset
+}
+
+func isBinary(ext string) bool {
+	return binaryExtensions[ext]
 }
 
 func humanizeSize(size int64) string {
@@ -277,21 +292,4 @@ func humanizeSize(size int64) string {
 		exp++
 	}
 	return fmt.Sprintf("%.1f %cB", float64(size)/float64(div), "KMGTPE"[exp])
-}
-
-func isBinary(ext string) bool {
-	_, isBinary := binaryExtensions[ext]
-	return isBinary
-}
-
-func getFileIcon(name string) string {
-	ext := strings.ToLower(filepath.Ext(name))
-	icon, exists := fileIcons[ext]
-	if !exists {
-		if isBinary(ext) {
-			return green + " " + reset // Default binary icon
-		}
-		return white + " " + reset // Default file icon
-	}
-	return icon
 }
