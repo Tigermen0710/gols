@@ -22,12 +22,12 @@ const (
 	white   = "\033[97m"
 	orange  = "\033[38;5;208m"
 	purple  = "\033[35m"
-    lightRed    = "\033[91m"
-    lightPurple = "\033[95m"
-    darkGreen = "\033[38;5;22m"
-    darkOrange  = "\033[38;5;208m" 
-    darkYellow  = "\033[38;5;172m" 
-    darkMagenta = "\033[38;5;125m"
+	lightRed    = "\033[91m"
+	lightPurple = "\033[95m"
+	darkGreen = "\033[38;5;22m"
+	darkOrange  = "\033[38;5;208m"
+	darkYellow  = "\033[38;5;172m"
+	darkMagenta = "\033[38;5;125m"
 )
 
 var (
@@ -115,8 +115,9 @@ func parseFlags() {
 		switch arg {
 		case "-l":
 			longListing = true
-		case "-h":
-			humanReadable = true
+        case "-h":
+			showHelp()
+			os.Exit(0)
 		case "-lh":
 			longListing = true
 			humanReadable = true
@@ -131,7 +132,8 @@ func showHelp() {
 	fmt.Println("Usage: gols [options]")
 	fmt.Println("Options:")
 	fmt.Println("  -l    Long listing format")
-	fmt.Println("  -h    Human-readable file sizes")
+	fmt.Println("  -lh   Human-readable file sizes")
+	fmt.Println("  -h    Show options")
 }
 
 func printFilesInColumns(files []os.DirEntry) {
@@ -165,7 +167,6 @@ func printLongListing(files []os.DirEntry) {
 		if humanReadable {
 			sizeStr = humanizeSize(size)
 		}
-		modTime := info.ModTime().Format("Jan 02 15:04")
 
 		// Get owner and group names
 		owner, err := user.LookupId(fmt.Sprintf("%d", info.Sys().(*syscall.Stat_t).Uid))
@@ -178,7 +179,10 @@ func printLongListing(files []os.DirEntry) {
 		}
 
 		// Print long listing format with icons
-		fmt.Printf("%s %10s %s %s %s %s %s\n", permissions, sizeStr, owner.Username, group.Name, modTime, getFileIcon(file.Name()), file.Name())
+		fmt.Printf("%s %10s %s %s", permissions, sizeStr, owner.Username, group.Name)
+		fmt.Printf(" %s", info.ModTime().Format("Jan 02 15:04"))
+
+		fmt.Printf(" %s %s\n", getFileIcon(file.Name()), file.Name())
 	}
 	fmt.Println() // Ensure a newline at the end
 }
@@ -241,44 +245,53 @@ func printFile(file os.DirEntry) {
 	} else {
 		fmt.Print(white + " " + reset + name)
 	}
-}
 
-func printPadding(fileName string, maxFileNameLength int) {
-	padding := maxFileNameLength - len(fileName)
-	for i := 0; i < padding; i++ {
-		fmt.Print(" ")
+	// Print modification time only if long listing is specified and info.ModTime() is not zero
+	if longListing && !file.IsDir() {
+		info, err := file.Info()
+		if err != nil {
+			log.Fatal(err)
+		}
+		modTime := info.ModTime()
+		if !modTime.IsZero() {
+			fmt.Printf(" %s", modTime.Format("Jan 02 15:04"))
+		}
 	}
 }
 
-func getFileIcon(name string) string {
-	ext := strings.ToLower(filepath.Ext(name))
-	icon, exists := fileIcons[ext]
-
-	if exists {
-		return icon
-	} else if ext == "" {
-		return green + " " + reset
-	} else if isBinary(ext) {
-		return green + " " + reset
+func printPadding(name string, maxLength int) {
+	padding := maxLength - len(name)
+	if padding > 0 {
+		fmt.Print(strings.Repeat(" ", padding+1))
 	}
-
-	return white + " " + reset
-}
-
-func isBinary(ext string) bool {
-	return binaryExtensions[ext]
 }
 
 func humanizeSize(size int64) string {
 	const unit = 1024
 	if size < unit {
-		return fmt.Sprintf("%dB", size)
+		return fmt.Sprintf("%d B", size)
 	}
-	div := float64(unit)
-	exp := 0
+	div, exp := int64(unit), 0
 	for n := size / unit; n >= unit; n /= unit {
 		div *= unit
 		exp++
 	}
-	return fmt.Sprintf("%.1f%cB", float64(size)/div, "KMGTPE"[exp])
+	return fmt.Sprintf("%.1f %cB", float64(size)/float64(div), "KMGTPE"[exp])
+}
+
+func isBinary(ext string) bool {
+	_, isBinary := binaryExtensions[ext]
+	return isBinary
+}
+
+func getFileIcon(name string) string {
+	ext := strings.ToLower(filepath.Ext(name))
+	icon, exists := fileIcons[ext]
+	if !exists {
+		if isBinary(ext) {
+			return green + " " + reset // Default binary icon
+		}
+		return white + " " + reset // Default file icon
+	}
+	return icon
 }
