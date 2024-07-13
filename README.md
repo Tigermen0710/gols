@@ -1,5 +1,7 @@
 ![gols Logo](https://github.com/Tigermen0710/gols/assets/139358448/0fb308e6-df80-4cb5-840b-1221ff0b4478)
 
+![gols shot](https://imgur.com/a/Zvudn6X)
+
 # gols - Enhanced `ls` with Icons, Written in Go
 
 `gols` is a file listing tool for Unix-like systems that uses Nerd Fonts 
