@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/user"
 	"path/filepath"
 	"strings"
-    //"time"
+	"syscall"
 )
 
 var (
@@ -76,29 +77,29 @@ var (
 )
 
 func main() {
-    defer func() {
-        fmt.Println(" ")
-        fmt.Print("\033[0m") // Reset ANSI codes
-        os.Stdout.Sync()
-    }()
+	defer func() {
+		fmt.Println(" ")
+		fmt.Print(reset) // Reset ANSI codes
+		os.Stdout.Sync()
+	}()
 
-    parseFlags()
+	parseFlags()
 
-    directory, err := os.Getwd()
-    if err != nil {
-        log.Fatal(err)
-    }
+	directory, err := os.Getwd()
+	if err != nil {
+		log.Fatal(err)
+	}
 
-    files, err := os.ReadDir(directory)
-    if err != nil {
-        log.Fatal(err)
-    }
+	files, err := os.ReadDir(directory)
+	if err != nil {
+		log.Fatal(err)
+	}
 
-    if longListing {
-        printLongListing(files)
-    } else {
-        printFilesInColumns(files)
-    }
+	if longListing {
+		printLongListing(files)
+	} else {
+		printFilesInColumns(files)
+	}
 }
 
 func parseFlags() {
@@ -149,16 +150,67 @@ func printLongListing(files []os.DirEntry) {
 	for _, file := range files {
 		info, err := file.Info()
 		if err != nil {
-			log.Fatal(err)
+			log.Printf("could not get info for file: %v", err)
+			continue
 		}
+		stat, ok := info.Sys().(*syscall.Stat_t)
+		if !ok {
+			log.Printf("could not get stat for file: %v", err)
+			continue
+		}
+		uid := fmt.Sprintf("%d", stat.Uid)
+		gid := fmt.Sprintf("%d", stat.Gid)
+		usr, err := user.LookupId(uid)
+		if err != nil {
+			usr.Username = uid
+		}
+		grp, err := user.LookupGroupId(gid)
+		if err != nil {
+			grp.Name = gid
+		}
+
 		size := info.Size()
-		sizeStr := fmt.Sprintf("%d", size)
+		sizeStr := fmt.Sprintf("%10d", size)
 		if humanReadable {
-			sizeStr = humanizeSize(size)
+			sizeStr = fmt.Sprintf("%10s", humanizeSize(size))
 		}
 		modTime := info.ModTime().Format("Jan 02 15:04")
-		fmt.Printf("%s %10s %s %s\n", modTime, sizeStr, getFileIcon(file), file.Name())
+		fmt.Printf("%s %10s %8s %8s %s %s %s\n", formatPermissions(info.Mode()), sizeStr, usr.Username, grp.Name, modTime, getFileIcon(file), file.Name())
 	}
+}
+
+func formatPermissions(mode os.FileMode) string {
+	var b []byte
+	if mode.IsDir() {
+		b = append(b, 'd')
+	} else {
+		b = append(b, '-')
+	}
+	b = append(b, rwx(mode.Perm()>>6)...)
+	b = append(b, rwx(mode.Perm()>>3)...)
+	b = append(b, rwx(mode.Perm())...)
+	return string(b)
+}
+
+func rwx(perm os.FileMode) []byte {
+	return []byte{
+		rwxBit(perm & 4),
+		rwxBit(perm & 2),
+		rwxBit(perm & 1),
+	}
+}
+
+func rwxBit(bit os.FileMode) byte {
+	if bit == 4 {
+		return 'r'
+	}
+	if bit == 2 {
+		return 'w'
+	}
+	if bit == 1 {
+		return 'x'
+	}
+	return '-'
 }
 
 func getFileIcon(file os.DirEntry) string {
@@ -167,37 +219,24 @@ func getFileIcon(file os.DirEntry) string {
 
 	if ext == "" {
 		if file.IsDir() {
-			return green + "" + reset
+			return green + " " + reset
 		}
-		return green + "" + reset
+		return green + " " + reset
 	}
 	if icon, exists := fileIcons[ext]; exists {
 		return icon
 	}
 	if isBinary(ext) {
-		return green + "" + reset
+		return green + " " + reset
 	}
-	return white + "" + reset
+	return white + " " + reset
 }
 
 func printFile(file os.DirEntry) {
 	name := file.Name()
-	ext := strings.ToLower(filepath.Ext(name))
-	icon, exists := fileIcons[ext]
+	icon := getFileIcon(file)
 
-	if ext == "" {
-		if file.IsDir() {
-			fmt.Print(green + name + " " + reset)
-		} else {
-			fmt.Print(green + " " + reset + name)
-		}
-	} else if exists {
-		fmt.Print(icon + name)
-	} else if isBinary(ext) {
-		fmt.Print(green + " " + reset + name)
-	} else {
-		fmt.Print(white + " " + reset + name)
-	}
+	fmt.Print(icon + name)
 }
 
 func printPadding(fileName string) {
