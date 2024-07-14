@@ -267,13 +267,16 @@ func printPadding(fileName string, maxFileNameLength int) {
 
 func getFileIcon(fileName string) string {
 	ext := strings.ToLower(filepath.Ext(fileName))
+
+	if ext == "" {
+		return green + " " + reset
+	}
+
 	icon, exists := fileIcons[ext]
 	if exists {
 		return icon
 	}
-	if isBinary(ext) {
-		return green + " " + reset
-	}
+
 	return white + " " + reset
 }
 
