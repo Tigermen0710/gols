@@ -1,76 +1,146 @@
 package main
+
 import (
     "fmt"
-    "strings"
-    "log"
     "io/ioutil"
+    "log"
     "os"
+    "path/filepath"
+    "strings"
 )
-var reset = "\033[0m"
-var red = "\033[31m"
-var green = "\033[32m"
-var yellow = "\033[33m"
-var blue = "\033[34m"
-var magenta = "\033[35m"
-var cyan = "\033[36m"
-var white = "\033[97m"
+
+const (
+    reset   = "\033[0m"
+    red     = "\033[31m"
+    green   = "\033[32m"
+    yellow  = "\033[33m"
+    blue    = "\033[34m"
+    magenta = "\033[35m"
+    cyan    = "\033[36m"
+    white   = "\033[97m"
+)
+
 var filesInLine = 0
-func main()  {
+
+func main() {
     directory, err := os.Getwd()
     if err != nil {
         log.Fatal(err)
     }
-    files, err := ioutil.ReadDir(directory)
 
+    sanitizedDir, err := sanitizePath(directory)
     if err != nil {
         log.Fatal(err)
     }
+
+    files, err := ioutil.ReadDir(sanitizedDir)
+    if err != nil {
+        log.Fatal(err)
+    }
+
     for _, file := range files {
-        if file.IsDir() {
-            fmt.Print(green + file.Name() + " " + reset)
-        } else if strings.Contains(file.Name(), ".go") {
-            fmt.Print(cyan + " " + reset + file.Name())
-        } else if strings.Contains(file.Name(), ".sh") {
-            fmt.Print(white + " " + reset + file.Name())
-        } else if strings.Contains(file.Name(), ".cpp") {
-            fmt.Print(blue + " " + reset + file.Name())
-        } else if strings.Contains(file.Name(), ".css") {
-            fmt.Print(blue + " " + reset + file.Name())
-        } else if strings.Contains(file.Name(), ".c") {
-            fmt.Print(blue + " " + reset + file.Name())
-        } else if strings.Contains(file.Name(), ".png") || strings.Contains(file.Name(), ".jpg") || strings.Contains(file.Name(), ".webp") || strings.Contains(file.Name(), ".JPG") {
-            fmt.Print(magenta + " " + reset + file.Name())
-        } else if strings.Contains(file.Name(), ".xfc") {
-            fmt.Print(white + " " + reset + file.Name())
-        } else if strings.Contains(file.Name(), ".xml")|| strings.Contains(file.Name(), ".htm") {
-            fmt.Print(red + " " + reset + file.Name())
-        } else if strings.Contains(file.Name(), ".txt") {
-            fmt.Print(white + " " + reset + file.Name())
-        } else if strings.Contains(file.Name(), ".mp3") ||  strings.Contains(file.Name(), ".ogg") {
-            fmt.Print(cyan + " " + reset + file.Name())
-        } else if strings.Contains(file.Name(), ".zip")||strings.Contains(file.Name(), ".tar") {
-            fmt.Print(yellow + "󰿺 " + reset + file.Name())
-        } else if strings.Contains(file.Name(), ".jar")||strings.Contains(file.Name(), ".java") {
-            fmt.Print(white + " " + reset + file.Name())
-        } else if strings.Contains(file.Name(), ".js") {
-            fmt.Print(yellow + " " + reset + file.Name())
-        } else if strings.Contains(file.Name(), ".py") {
-            fmt.Print(yellow + " " + reset + file.Name())
-        } else if strings.Contains(file.Name(), ".rs") {
-            fmt.Print(white + " " + reset + file.Name())
-        }  else if strings.Contains(file.Name(), ".deb") {
-            fmt.Print(red + " " + reset + file.Name())
-        } else {
-            fmt.Print(white + " " + reset + file.Name())
-        }
+        fmt.Print(getFileColor(file) + getFileIcon(file) + file.Name() + reset)
         filesInLine++
         if filesInLine > 2 || len(file.Name()) > 19 {
-            fmt.Println(" ")
+            fmt.Println()
             filesInLine = 0
         } else {
-            for i := 0; i < 20 - len(file.Name()); i++ {
-                fmt.Print(" ")
-            }
+            fmt.Print(strings.Repeat(" ", 20-len(file.Name())))
         }
+    }
+}
+
+func sanitizePath(path string) (string, error) {
+    cleanPath := filepath.Clean(path)
+    if !filepath.IsAbs(cleanPath) {
+        absPath, err := filepath.Abs(cleanPath)
+        if err != nil {
+            return "", err
+        }
+        cleanPath = absPath
+    }
+
+    if strings.Contains(cleanPath, "..") {
+        return "", fmt.Errorf("invalid path: %s", cleanPath)
+    }
+
+    return cleanPath, nil
+}
+
+func getFileColor(file os.FileInfo) string {
+    switch {
+    case file.IsDir():
+        return green
+    case strings.Contains(file.Name(), ".go"):
+        return cyan
+    case strings.Contains(file.Name(), ".sh"):
+        return white
+    case strings.Contains(file.Name(), ".cpp"), strings.Contains(file.Name(), ".c"):
+        return blue
+    case strings.Contains(file.Name(), ".css"), strings.Contains(file.Name(), ".xml"), strings.Contains(file.Name(), ".htm"):
+        return red
+    case strings.Contains(file.Name(), ".png"), strings.Contains(file.Name(), ".jpg"), strings.Contains(file.Name(), ".webp"), strings.Contains(file.Name(), ".JPG"):
+        return magenta
+    case strings.Contains(file.Name(), ".xfc"):
+        return white
+    case strings.Contains(file.Name(), ".txt"):
+        return white
+    case strings.Contains(file.Name(), ".mp3"), strings.Contains(file.Name(), ".ogg"):
+        return cyan
+    case strings.Contains(file.Name(), ".zip"), strings.Contains(file.Name(), ".tar"):
+        return yellow
+    case strings.Contains(file.Name(), ".jar"), strings.Contains(file.Name(), ".java"):
+        return white
+    case strings.Contains(file.Name(), ".js"):
+        return yellow
+    case strings.Contains(file.Name(), ".py"):
+        return yellow
+    case strings.Contains(file.Name(), ".rs"):
+        return white
+    case strings.Contains(file.Name(), ".deb"):
+        return red
+    default:
+        return white
+    }
+}
+
+func getFileIcon(file os.FileInfo) string {
+    switch {
+    case file.IsDir():
+        return " "
+    case strings.Contains(file.Name(), ".go"):
+        return " "
+    case strings.Contains(file.Name(), ".sh"):
+        return " "
+    case strings.Contains(file.Name(), ".cpp"):
+        return " "
+    case strings.Contains(file.Name(), ".css"):
+        return " "
+    case strings.Contains(file.Name(), ".c"):
+        return " "
+    case strings.Contains(file.Name(), ".png"), strings.Contains(file.Name(), ".jpg"), strings.Contains(file.Name(), ".webp"), strings.Contains(file.Name(), ".JPG"):
+        return " "
+    case strings.Contains(file.Name(), ".xfc"):
+        return " "
+    case strings.Contains(file.Name(), ".xml"), strings.Contains(file.Name(), ".htm"):
+        return " "
+    case strings.Contains(file.Name(), ".txt"):
+        return " "
+    case strings.Contains(file.Name(), ".mp3"), strings.Contains(file.Name(), ".ogg"):
+        return " "
+    case strings.Contains(file.Name(), ".zip"), strings.Contains(file.Name(), ".tar"):
+        return "󰿺 "
+    case strings.Contains(file.Name(), ".jar"), strings.Contains(file.Name(), ".java"):
+        return " "
+    case strings.Contains(file.Name(), ".js"):
+        return " "
+    case strings.Contains(file.Name(), ".py"):
+        return " "
+    case strings.Contains(file.Name(), ".rs"):
+        return " "
+    case strings.Contains(file.Name(), ".deb"):
+        return " "
+    default:
+        return " "
     }
 }
