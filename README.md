@@ -28,7 +28,7 @@ This Go program lists the files and directories in the current working directory
 
 ### Bash
 ```bash
-git clone https://github.com/a3ro-dev/gols
+git clone https://github.com/Tigermen0710/gols
 cd gols
 gccgo gols.go -o ls
 sudo mv gols.sh /bin/gols
