@@ -5,7 +5,6 @@ This Go program lists the files and directories in the current working directory
 ## Changes Made
 
 ### Code Refactoring
-- **Function Separation**: Extracted the logic for getting file colors and icons into separate functions (`getFileColor` and `getFileIcon`), improving the readability of the `main` function.
 - **Constants for Colors**: Defined the color codes as constants for better readability and maintainability.
 - **String Repeat**: Used `strings.Repeat` for padding spaces instead of a manual loop.
 - **Switch Statements**: Used switch statements instead of multiple `if-else` statements for better clarity and performance.
