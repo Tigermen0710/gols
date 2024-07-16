@@ -117,6 +117,7 @@ func parseFlags() {
 			fileSize = true
 		case "-hs", "-sh":
 			fileSize = true
+			humanReadable = true
 		default:
 			if !strings.HasPrefix(arg, "-") {
 				continue
@@ -163,8 +164,8 @@ func getFileSize(files []os.DirEntry, directory string) {
 		size := info.Size()
 		sizeStr := fmt.Sprintf("%d", size)
 		if humanReadable {
+			sizeStr = humanizeSize(size)
 		}
-		sizeStr = humanizeSize(size)
 		var spaces = 10 - len(sizeStr)
 		fmt.Print(sizeStr)
 		for i := 0; i < spaces; i++ {
