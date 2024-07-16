@@ -267,7 +267,7 @@ func getFileIcon(file os.DirEntry, mode os.FileMode) string {
 	}
 	// Default icon for files without known extensions
 	if mode&0111 != 0 {
-		return green + " " + reset // Executable file icon
+		return green + " " + reset // Executable file icon
 	}
 	return " " + reset // Regular file icon
 }
