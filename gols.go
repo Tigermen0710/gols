@@ -33,7 +33,7 @@ const (
 var (
 	longListing   bool
 	humanReadable bool
-	fileSize	  bool
+	fileSize      bool
 
 	// File icons based on extensions
 	fileIcons = map[string]string{
@@ -159,6 +159,7 @@ func printFilesInColumns(files []os.DirEntry, directory string) {
 	}
 	fmt.Println() // Ensure a newline at the end
 }
+
 func getFileSize(files []os.DirEntry, directory string) {
 	for _, file := range files {
 		info, err := file.Info()
@@ -168,9 +169,9 @@ func getFileSize(files []os.DirEntry, directory string) {
 		size := info.Size()
 		sizeStr := fmt.Sprintf("%d", size)
 		if humanReadable {
+			sizeStr = humanizeSize(size)
 		}
-		sizeStr = humanizeSize(size)
-		var spaces = 10-len(sizeStr)
+		var spaces = 10 - len(sizeStr)
 		fmt.Print(sizeStr)
 		for i := 0; i < spaces; i++ {
 			fmt.Print(" ")
@@ -179,6 +180,7 @@ func getFileSize(files []os.DirEntry, directory string) {
 	}
 	fmt.Println()
 }
+
 func printLongListing(files []os.DirEntry, directory string) {
 	for _, file := range files {
 		info, err := file.Info()
@@ -190,6 +192,7 @@ func printLongListing(files []os.DirEntry, directory string) {
 		size := info.Size()
 		sizeStr := fmt.Sprintf("%d", size)
 		if humanReadable {
+			sizeStr = humanizeSize(size)
 		}
 
 		// Get owner and group names
@@ -208,8 +211,8 @@ func printLongListing(files []os.DirEntry, directory string) {
 
 		fmt.Printf(" %s %s\n", getFileIcon(file.Name()), file.Name())
 	}
-	fmt.Println() // Ensure a newline at the end
 }
+
 func formatPermissions(mode os.FileMode) string {
 	var b strings.Builder
 
@@ -252,59 +255,53 @@ func rwx(perm os.FileMode) string {
 
 func printFile(file os.DirEntry, directory string) {
 	name := file.Name()
-	ext := strings.ToLower(filepath.Ext(name))
-	icon, exists := fileIcons[ext]
+	icon := getFileIcon(name)
 
-	if ext == "" {
-		if file.IsDir() {
-			fmt.Print(name + green + "  " + reset)
-		} else {
-			fmt.Print(white + " " + reset + name)
-		}
-	} else if exists {
-		fmt.Print(icon + name)
+	if file.IsDir() {
+		fmt.Print(blue + icon + name + "/" + reset)
 	} else {
-		fmt.Print(white + " " + reset + name)
-	}
-
-	// Print modification time only if long listing is specified and info.ModTime() is not zero
-	if longListing && !file.IsDir() {
-		info, err := os.Stat(filepath.Join(directory, file.Name()))
-		if err == nil && !info.ModTime().IsZero() {
-			fmt.Printf("  %s", info.ModTime().Format("Jan 02 15:04"))
-		}
+		fmt.Print(icon + name)
 	}
 }
 
+func getFileIcon(name string) string {
+	ext := filepath.Ext(name)
+	icon, exists := fileIcons[ext]
+	if exists {
+		return icon
+	}
+	return white + " " + reset // Default icon
+}
+
 func printPadding(fileName string, maxFileNameLength int) {
-	padding := maxFileNameLength - len(fileName) + 2
+	padding := maxFileNameLength - len(fileName)
 	for i := 0; i < padding; i++ {
 		fmt.Print(" ")
 	}
 }
 
-func getFileIcon(fileName string) string {
-	ext := strings.ToLower(filepath.Ext(fileName))
-
-	if ext == "" {
-
-	}
-	icon, exists := fileIcons[ext]
-	if exists {
-		return icon
-	}
-
-	return white + " " + reset
-}
 func humanizeSize(size int64) string {
-	const unit = 1024
-	if size < unit {
-		return fmt.Sprintf("%d B", size)
+	const (
+		_  = iota
+		KB = 1 << (10 * iota)
+		MB
+		GB
+		TB
+		PB
+	)
+
+	switch {
+	case size >= PB:
+		return fmt.Sprintf("%.2fPB", float64(size)/PB)
+	case size >= TB:
+		return fmt.Sprintf("%.2fTB", float64(size)/TB)
+	case size >= GB:
+		return fmt.Sprintf("%.2fGB", float64(size)/GB)
+	case size >= MB:
+		return fmt.Sprintf("%.2fMB", float64(size)/MB)
+	case size >= KB:
+		return fmt.Sprintf("%.2fKB", float64(size)/KB)
+	default:
+		return fmt.Sprintf("%dB", size)
 	}
-	div, exp := int64(unit), 0
-	for n := size / unit; n >= unit; n /= unit {
-		div *= unit
-		exp++
-	}
-	return fmt.Sprintf("%.1f %cB", float64(size)/float64(div), "KMGTPE"[exp])
 }
