@@ -163,14 +163,18 @@ func getFileSize(files []os.DirEntry, directory string) {
 		size := info.Size()
 		sizeStr := fmt.Sprintf("%d", size)
 		if humanReadable {
-			sizeStr = humanizeSize(size)
 		}
+		sizeStr = humanizeSize(size)
 		var spaces = 10 - len(sizeStr)
 		fmt.Print(sizeStr)
 		for i := 0; i < spaces; i++ {
 			fmt.Print(" ")
 		}
-		fmt.Println(file.Name())
+		if file.IsDir() {
+			fmt.Println(blue + file.Name() + "  " + reset)
+		} else {
+			fmt.Println(getFileIcon(file, info.Mode()) + file.Name())
+		}
 	}
 	fmt.Println()
 }
