@@ -21,7 +21,7 @@ To run it, use:
 ```bash
 gols
 ```
-##flags:
+## flags:
 
 -s  - show files size (-hs for human-readable format)
 
