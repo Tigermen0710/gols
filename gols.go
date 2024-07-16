@@ -12,72 +12,66 @@ import (
 
 // ANSI escape codes for colors
 const (
-	reset       = "\033[0m"
-	red         = "\033[31m"
-	green       = "\033[32m"
-	yellow      = "\033[33m"
-	blue        = "\033[34m"
-	magenta     = "\033[35m"
-	white       = "\033[97m"
-	cyan        = "\033[36m"
-	orange      = "\033[38;5;208m"
-	purple      = "\033[35m"
-	lightRed    = "\033[91m"
-	lightPurple = "\033[95m"
-	darkGreen   = "\033[38;5;22m"
-	darkOrange  = "\033[38;5;208m"
-	darkYellow  = "\033[38;5;172m"
-	darkMagenta = "\033[38;5;125m"
+	reset  = "\033[0m"
+	green  = "\033[32m"
+	red    = "\033[31m"
+	yellow = "\033[33m"
+	blue   = "\033[34m"
+	magenta = "\033[35m"
+	white  = "\033[97m"
+	cyan   = "\033[36m"
+	orange = "\033[38;5;208m"
+	purple = "\033[35m"
 )
 
 var (
 	longListing   bool
 	humanReadable bool
-	fileSize	  bool
+	fileSize      bool
 
 	// File icons based on extensions
 	fileIcons = map[string]string{
-		".go":   cyan + " " + reset,
-		".sh":   white + " " + reset,
-		".cpp":  blue + " " + reset,
-		".hpp":  blue + " " + reset,
-		".cxx":  blue + " " + reset,
-		".hxx":  blue + " " + reset,
-		".css":  blue + " " + reset,
-		".c":    blue + " " + reset,
-		".png":  magenta + " " + reset,
-		".jpg":  magenta + " " + reset,
-		".jpeg": magenta + " " + reset,
-		".webp": magenta + " " + reset,
-		".xcf":  white + " " + reset,
-		".xml":  red + " " + reset,
-		".htm":  red + " " + reset,
-		".html": red + " " + reset,
-		".txt":  white + " " + reset,
-		".mp3":  cyan + " " + reset,
-		".ogg":  cyan + " " + reset,
-		".mp4":  cyan + " " + reset,
-		".zip":  yellow + "󰿺 " + reset,
-		".tar":  yellow + "󰿺 " + reset,
-		".gz":   yellow + "󰿺 " + reset,
-		".bz2":  yellow + "󰿺 " + reset,
-		".xz":   yellow + "󰿺 " + reset,
-		".jar":  white + " " + reset,
-		".java": white + " " + reset,
-		".js":   yellow + " " + reset,
-		".py":   yellow + " " + reset,
-		".rs":   orange + " " + reset,
-		".deb":  red + " " + reset,
-		".md":   blue + " " + reset,
-		".rb":   red + " " + reset,
-		".php":  purple + " " + reset,
-		".pl":   orange + " " + reset,
-		".svg":  magenta + " " + reset,
-		".eps":  magenta + " " + reset,
-		".ps":   magenta + " " + reset,
-		".git":  orange + " " + reset,
-		".zig":  darkOrange + " " + reset,
-		".xbps": darkGreen + " " + reset,
+		".go":   " ",
+		".sh":   " ",
+		".cpp":  " ",
+		".hpp":  " ",
+		".cxx":  " ",
+		".hxx":  " ",
+		".css":  " ",
+		".c":    " ",
+		".png":  " ",
+		".jpg":  " ",
+		".jpeg": " ",
+		".webp": " ",
+		".xcf":  " ",
+		".xml":  " ",
+		".htm":  " ",
+		".html": " ",
+		".txt":  " ",
+		".mp3":  " ",
+		".ogg":  " ",
+		".mp4":  " ",
+		".zip":  "󰿺 ",
+		".tar":  "󰿺 ",
+		".gz":   "󰿺 ",
+		".bz2":  "󰿺 ",
+		".xz":   "󰿺 ",
+		".jar":  " ",
+		".java": " ",
+		".js":   " ",
+		".py":   " ",
+		".rs":   " ",
+		".deb":  " ",
+		".md":   " ",
+		".rb":   " ",
+		".php":  " ",
+		".pl":   " ",
+		".svg":  " ",
+		".eps":  " ",
+		".ps":   " ",
+		".git":  " ",
+		".zig":  " ",
+		".xbps": " ",
 	}
 )
 
@@ -159,6 +153,7 @@ func printFilesInColumns(files []os.DirEntry, directory string) {
 	}
 	fmt.Println() // Ensure a newline at the end
 }
+
 func getFileSize(files []os.DirEntry, directory string) {
 	for _, file := range files {
 		info, err := file.Info()
@@ -168,17 +163,18 @@ func getFileSize(files []os.DirEntry, directory string) {
 		size := info.Size()
 		sizeStr := fmt.Sprintf("%d", size)
 		if humanReadable {
+			sizeStr = humanizeSize(size)
 		}
-		sizeStr = humanizeSize(size)
-		var spaces = 10-len(sizeStr)
+		var spaces = 10 - len(sizeStr)
 		fmt.Print(sizeStr)
 		for i := 0; i < spaces; i++ {
 			fmt.Print(" ")
 		}
-		fmt.Println(getFileIcon(file.Name()) + file.Name())
+		fmt.Println(file.Name())
 	}
 	fmt.Println()
 }
+
 func printLongListing(files []os.DirEntry, directory string) {
 	for _, file := range files {
 		info, err := file.Info()
@@ -190,6 +186,7 @@ func printLongListing(files []os.DirEntry, directory string) {
 		size := info.Size()
 		sizeStr := fmt.Sprintf("%d", size)
 		if humanReadable {
+			sizeStr = humanizeSize(size)
 		}
 
 		// Get owner and group names
@@ -206,10 +203,10 @@ func printLongListing(files []os.DirEntry, directory string) {
 		fmt.Printf("%s %10s %s %s", permissions, sizeStr, owner.Username, group.Name)
 		fmt.Printf(" %s", info.ModTime().Format("Jan 02 15:04"))
 
-		fmt.Printf(" %s %s\n", getFileIcon(file.Name()), file.Name())
+		fmt.Printf(" %s %s\n", getFileIcon(file, info.Mode()), file.Name())
 	}
-	fmt.Println() // Ensure a newline at the end
 }
+
 func formatPermissions(mode os.FileMode) string {
 	var b strings.Builder
 
@@ -230,81 +227,142 @@ func rwx(perm os.FileMode) string {
 	var b strings.Builder
 
 	if perm&0400 != 0 {
-		b.WriteString(green + "r")
+		b.WriteString("r")
 	} else {
 		b.WriteString("-")
 	}
 	if perm&0200 != 0 {
-		b.WriteString(yellow + "w")
+		b.WriteString("w")
 	} else {
 		b.WriteString("-")
 	}
 	if perm&0100 != 0 {
-		b.WriteString(red + "x")
+		b.WriteString("x")
 	} else {
 		b.WriteString("-")
 	}
-
-	b.WriteString(reset) // Reset colors
 
 	return b.String()
 }
 
 func printFile(file os.DirEntry, directory string) {
-	name := file.Name()
-	ext := strings.ToLower(filepath.Ext(name))
-	icon, exists := fileIcons[ext]
-
-	if ext == "" {
-		if file.IsDir() {
-			fmt.Print(name + green + "  " + reset)
-		} else {
-			fmt.Print(white + " " + reset + name)
-		}
-	} else if exists {
-		fmt.Print(icon + name)
-	} else {
-		fmt.Print(white + " " + reset + name)
+	info, err := file.Info()
+	if err != nil {
+		log.Fatal(err)
 	}
 
-	// Print modification time only if long listing is specified and info.ModTime() is not zero
-	if longListing && !file.IsDir() {
-		info, err := os.Stat(filepath.Join(directory, file.Name()))
-		if err == nil && !info.ModTime().IsZero() {
-			fmt.Printf("  %s", info.ModTime().Format("Jan 02 15:04"))
-		}
-	}
+	fmt.Print(getFileIcon(file, info.Mode()) + file.Name())
+	fmt.Print(" ")
 }
 
-func printPadding(fileName string, maxFileNameLength int) {
-	padding := maxFileNameLength - len(fileName) + 2
-	for i := 0; i < padding; i++ {
-		fmt.Print(" ")
+func getFileIcon(file os.DirEntry, mode os.FileMode) string {
+	if mode.IsDir() {
+		return blue + " " + reset // Directory icon
 	}
-}
 
-func getFileIcon(fileName string) string {
-	ext := strings.ToLower(filepath.Ext(fileName))
-
-	if ext == "" {
-
-	}
+	ext := filepath.Ext(file.Name())
 	icon, exists := fileIcons[ext]
 	if exists {
-		return icon
+		return getIconColor(icon, mode)
 	}
-
-	return white + " " + reset
+	// Default icon for files without known extensions
+	if mode&0111 != 0 {
+		return green + " " + reset // Executable file icon
+	}
+	return " " + reset // Regular file icon
 }
+
+func getIconColor(icon string, mode os.FileMode) string {
+	// For executable files, return green icon
+	if mode&0111 != 0 {
+		return green + icon + reset
+	}
+	// For other icons, return default color based on extension
+	switch icon {
+	case " ":
+		return cyan + icon + reset // .go files
+	case " ":
+		return yellow + icon + reset // .sh files
+	case " ":
+		return blue + icon + reset // .cpp, .hpp, .cxx, .hxx files
+	case " ":
+		return white + icon + reset // .css files
+	case " ":
+		return blue + icon + reset // .c files
+	case " ":
+		return yellow + icon + reset // .png, .jpg, .jpeg, .webp files
+	case " ":
+		return magenta + icon + reset // .xcf files
+	case " ":
+		return orange + icon + reset // .xml, .htm, .html files
+	case " ":
+		return purple + icon + reset // .txt files
+	case " ":
+		return yellow + icon + reset // .mp3, .ogg files
+	case " ":
+		return yellow + icon + reset // .mp4 files
+	case "󰿺 ":
+		return magenta + icon + reset // .zip, .tar, .gz, .bz2, .xz files
+	case " ":
+		return cyan + icon + reset // .jar, .java files
+	case " ":
+		return yellow + icon + reset // .js files
+	case " ":
+		return yellow + icon + reset // .py files
+	case " ":
+		return yellow + icon + reset // .rs files
+	case " ":
+		return yellow + icon + reset // .deb files
+	case " ":
+		return cyan + icon + reset // .md files
+	case " ":
+		return yellow + icon + reset // .rb files
+	case " ":
+		return blue + icon + reset // .php files
+	case " ":
+		return red + icon + reset // .pl files
+	case " ":
+		return orange + icon + reset // .svg, .eps, .ps files
+	case " ":
+		return yellow + icon + reset // .git files
+	case " ":
+		return cyan + icon + reset // .zig files
+	case " ":
+		return white + icon + reset // .xbps files
+	default:
+		return icon + reset // Default to icon without color for unknown extensions
+	}
+}
+
 func humanizeSize(size int64) string {
-	const unit = 1024
-	if size < unit {
-		return fmt.Sprintf("%d B", size)
+	const (
+		_  = iota
+		KB = 1 << (10 * iota)
+		MB
+		GB
+		TB
+	)
+	switch {
+	case size >= TB:
+		return fmt.Sprintf("%.2fTB", float64(size)/float64(TB))
+	case size >= GB:
+		return fmt.Sprintf("%.2fGB", float64(size)/float64(GB))
+	case size >= MB:
+		return fmt.Sprintf("%.2fMB", float64(size)/float64(MB))
+	case size >= KB:
+		return fmt.Sprintf("%.2fKB", float64(size)/float64(KB))
+	default:
+		return fmt.Sprintf("%dB", size)
 	}
-	div, exp := int64(unit), 0
-	for n := size / unit; n >= unit; n /= unit {
-		div *= unit
-		exp++
-	}
-	return fmt.Sprintf("%.1f %cB", float64(size)/float64(div), "KMGTPE"[exp])
+}
+
+func printPadding(name string, maxFileNameLength int) {
+	padding := maxFileNameLength - len(name)
+	fmt.Print(strings.Repeat(" ", padding))
+}
+
+func getFileNameAndExtension(file os.DirEntry) (string, string) {
+	ext := filepath.Ext(file.Name())
+	name := strings.TrimSuffix(file.Name(), ext)
+	return name, ext
 }
