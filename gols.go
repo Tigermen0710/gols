@@ -250,8 +250,11 @@ func printFile(file os.DirEntry, directory string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	fmt.Print(getFileIcon(file, info.Mode()) + file.Name())
+	if file.IsDir() {
+		fmt.Print(blue + file.Name() + "  " + reset)
+	} else {
+		fmt.Print(getFileIcon(file, info.Mode()) + file.Name())
+	}
 	fmt.Print(" ")
 }
 
