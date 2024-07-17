@@ -45,11 +45,12 @@ const (
 )
 
 var (
-	longListing   bool
-	humanReadable bool
-	fileSize      bool
-    orderBySize   bool
-    orderByTime   bool
+	longListing      bool
+	humanReadable    bool
+	fileSize         bool
+    orderBySize      bool
+    orderByTime      bool
+    showOnlySymlinks bool
 
 	// File icons based on extensions
 	fileIcons = map[string]string{
@@ -171,14 +172,18 @@ func parseFlags() {
 		case "-hs", "-sh":
 			fileSize = true
 			humanReadable = true
-        case "-o":
-            orderBySize = true
-            longListing = true
-            humanReadable = true
-        case "-t":
-            orderByTime = true
-            longListing = true
-            humanReadable = true
+		case "-o":
+			orderBySize = true
+			longListing = true
+			humanReadable = true
+		case "-t":
+			orderByTime = true
+			longListing = true
+			humanReadable = true
+		case "-m":
+			showOnlySymlinks = true
+			longListing = true
+			humanReadable = true
 		default:
 			if !strings.HasPrefix(arg, "-") {
 				continue
@@ -200,6 +205,7 @@ func showHelp() {
 	fmt.Println("  -sh       Print files size human-readable")
     fmt.Println("  -o        Sort by size")
     fmt.Println("  -t        Order by time")
+    fmt.Println("  -m        Only symbolic links are showing")
     fmt.Println("  -         Show options")
 }
 
@@ -256,7 +262,18 @@ func printLongListing(files []os.DirEntry, directory string) {
 		"time":        0,
 	}
 
-	for _, file := range files {
+	var filteredFiles []os.DirEntry
+	if showOnlySymlinks {
+		for _, file := range files {
+			if file.Type()&os.ModeSymlink != 0 {
+				filteredFiles = append(filteredFiles, file)
+			}
+		}
+	} else {
+		filteredFiles = files
+	}
+
+	for _, file := range filteredFiles {
 		info, err := file.Info()
 		if err != nil {
 			log.Fatal(err)
@@ -306,7 +323,7 @@ func printLongListing(files []os.DirEntry, directory string) {
 		}
 	}
 
-	for _, file := range files {
+	for _, file := range filteredFiles {
 		info, err := file.Info()
 		if err != nil {
 			log.Fatal(err)
@@ -340,15 +357,12 @@ func printLongListing(files []os.DirEntry, directory string) {
 		// Check if the file is a symbolic link
 		if file.Type()&os.ModeSymlink != 0 {
 			linkTarget, err := os.Readlink(filepath.Join(directory, file.Name()))
-			if err != nil {
-				log.Fatal(err)
+			if err == nil {
+				line += fmt.Sprintf(" %s==> %s%s", cyan, linkTarget, reset)
 			}
-
-			// Append symlink information
-			line += fmt.Sprintf(" %s%s==> %s%s", reset, brightCyan, linkTarget, reset)
 		}
 
-		fmt.Println(line) // Print the complete line
+		fmt.Println(line)
 	}
 }
 
