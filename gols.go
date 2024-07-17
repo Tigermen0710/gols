@@ -238,7 +238,7 @@ func getFileSize(files []os.DirEntry, directory string) {
 			fmt.Print(" ")
 		}
 		if file.IsDir() {
-			fmt.Println(blue + file.Name() + "  " + reset)
+			fmt.Println(blue + file.Name() + " " + reset)
 		} else {
 			fmt.Println(getFileIcon(file, info.Mode()) + file.Name())
 		}
@@ -321,7 +321,7 @@ func printFile(file os.DirEntry, directory string) {
 		log.Fatal(err)
 	}
 	if file.IsDir() {
-		fmt.Print(blue + file.Name() + "  " + reset)
+		fmt.Print(blue + file.Name() + " " + reset)
 	} else {
 		fmt.Print(getFileIcon(file, info.Mode()) + file.Name())
 	}
@@ -413,7 +413,7 @@ func getIconColor(icon string, mode os.FileMode) string {
 	case " ":
 		return orange + icon + reset // .eps, .ps files
     case "󰜡 ":
-        return orange + icon + reset // .svg files 
+        return orange + icon + reset // .svg files
 	case " ":
 		return orange + icon + reset // .git files
 	case " ":
