@@ -127,8 +127,10 @@ func parseFlags() {
 		case "-hs", "-sh":
 			fileSize = true
 			humanReadable = true
-        case "-os":
+        case "-o", "-ol", "-olh":
             orderBySize = true
+            longListing = true
+            humanReadable = true
 		default:
 			if !strings.HasPrefix(arg, "-") {
 				continue
@@ -145,11 +147,10 @@ func showHelp() {
 	fmt.Println("  -l        Long listing format")
 	fmt.Println("  -lh       Human-readable file sizes")
 	fmt.Println("  -hl       Human-readable file sizes")
-	fmt.Println("  -s        print files size")
+	fmt.Println("  -s        Print files size")
 	fmt.Println("  -hs       Print files size human-readable")
 	fmt.Println("  -sh       Print files size human-readable")
-    fmt.Println("  -os       Sort by size")
-    fmt.Println("  -os -lh   Sort by size long list human-readable")
+    fmt.Println("  -o        Sort by size long list human-readable")
     fmt.Println("  -         Show options")
 }
 
