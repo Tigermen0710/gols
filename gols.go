@@ -246,41 +246,65 @@ func getFileSize(files []os.DirEntry, directory string) {
 }
 
 func printLongListing(files []os.DirEntry, directory string) {
-	for _, file := range files {
-		info, err := file.Info()
-		if err != nil {
-			log.Fatal(err)
-		}
+    for _, file := range files {
+        info, err := file.Info()
+        if err != nil {
+            log.Fatal(err)
+        }
 
-		permissions := formatPermissions(info.Mode())
-		size := info.Size()
-		sizeStr := fmt.Sprintf("%d", size)
-		if humanReadable {
-			sizeStr = humanizeSize(size)
-		}
+        permissions := formatPermissions(file, info.Mode())
+        size := info.Size()
+        sizeStr := fmt.Sprintf("%d", size)
+        if humanReadable {
+            sizeStr = humanizeSize(size)
+        }
 
-		// Get owner and group names
-		owner, err := user.LookupId(fmt.Sprintf("%d", info.Sys().(*syscall.Stat_t).Uid))
-		if err != nil {
-			log.Fatal(err)
-		}
-		group, err := user.LookupGroupId(fmt.Sprintf("%d", info.Sys().(*syscall.Stat_t).Gid))
-		if err != nil {
-			log.Fatal(err)
-		}
+        // Get owner and group names
+        owner, err := user.LookupId(fmt.Sprintf("%d", info.Sys().(*syscall.Stat_t).Uid))
+        if err != nil {
+            log.Fatal(err)
+        }
+        group, err := user.LookupGroupId(fmt.Sprintf("%d", info.Sys().(*syscall.Stat_t).Gid))
+        if err != nil {
+            log.Fatal(err)
+        }
 
-		// Print long listing format with icons
-		fmt.Printf("%s %10s %s %s", permissions, sizeStr, owner.Username, group.Name)
-		fmt.Printf(" %s", info.ModTime().Format("Jan 02 15:04"))
+        // Print long listing format with icons and details
+        line := fmt.Sprintf("%s %10s %s %s", permissions, sizeStr, owner.Username, group.Name)
+        line += fmt.Sprintf(" %s", info.ModTime().Format("Jan 02 15:04"))
+        line += fmt.Sprintf(" %s %s", getFileIcon(file, info.Mode()), file.Name())
 
-		fmt.Printf(" %s %s\n", getFileIcon(file, info.Mode()), file.Name())
-	}
+        // Check if the file is a symbolic link
+        if file.Type()&os.ModeSymlink != 0 {
+            linkTarget, err := os.Readlink(filepath.Join(directory, file.Name()))
+            if err != nil {
+                log.Fatal(err)
+            }
+
+            // Append symlink information
+            line += fmt.Sprintf(" %s%s==> %s%s", reset, brightCyan, linkTarget, reset)
+
+            symlinkTarget := filepath.Join(directory, linkTarget)
+            targetInfo, err := os.Stat(symlinkTarget)
+            if err == nil {
+                if targetInfo.IsDir() {
+                    line = strings.Replace(line, getFileIcon(file, info.Mode()), brightMagenta+" "+reset, 1)
+				} else {
+					line = strings.Replace(line, getFileIcon(file, info.Mode()), lightRed+" "+reset, 1)
+				}
+			}
+        }
+
+        fmt.Println(line) // Print the complete line
+    }
 }
 
-func formatPermissions(mode os.FileMode) string {
+func formatPermissions(file os.DirEntry, mode os.FileMode) string {
 	var b strings.Builder
 
-	if mode.IsDir() {
+	if mode&os.ModeSymlink != 0 {
+		b.WriteString("l")
+	} else if mode.IsDir() {
 		b.WriteString("d")
 	} else {
 		b.WriteString("-")
@@ -307,9 +331,17 @@ func rwx(perm os.FileMode) string {
 		b.WriteString("-")
 	}
 	if perm&0100 != 0 {
-		b.WriteString("x")
+		if perm&os.ModeSetuid != 0 {
+			b.WriteString("s")
+		} else {
+			b.WriteString("x")
+		}
 	} else {
-		b.WriteString("-")
+		if perm&os.ModeSetuid != 0 {
+			b.WriteString("S")
+		} else {
+			b.WriteString("-")
+		}
 	}
 
 	return b.String()
@@ -337,6 +369,10 @@ func getFileIcon(file os.DirEntry, mode os.FileMode) string {
 	icon, exists := fileIcons[ext]
 	if exists {
 		return getIconColor(icon, mode)
+	}
+    // Symbolic links icon
+    if file.Type()&os.ModeSymlink != 0 {
+		return brightCyan + " " + reset
 	}
 	// Default icon for files without known extensions
 	if mode&0111 != 0 {
