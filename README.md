@@ -33,3 +33,4 @@ gols [FLAG] [DIRECTORY]
 |  -s  | show files size (-hs for human-readable format) | ![image](https://github.com/user-attachments/assets/433e18af-b869-4bfc-982a-6528341895a9) |
 |  -l  | long listing (-lh for human-readable formt)     | ![image](https://github.com/user-attachments/assets/98a41e56-92b5-46ad-8780-e3c611476207) |
 |  -o  | sort files by size                              |                      |
+|  -t  | order all by time                             |                      |

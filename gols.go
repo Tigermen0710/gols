@@ -30,6 +30,7 @@ var (
 	humanReadable bool
 	fileSize      bool
     orderBySize   bool
+    orderByTime   bool
 
 	// File icons based on extensions
 	fileIcons = map[string]string{
@@ -101,6 +102,13 @@ func main() {
 			return info1.Size() < info2.Size()
 		})
 	}
+    if orderByTime {
+    sort.Slice(files, func(i, j int) bool {
+        info1, _ := files[i].Info()
+        info2, _ := files[j].Info()
+        return info1.ModTime().Before(info2.ModTime())
+    })
+    }
 	if longListing {
 		printLongListing(files, directory)
 	} else if fileSize {
@@ -127,8 +135,12 @@ func parseFlags() {
 		case "-hs", "-sh":
 			fileSize = true
 			humanReadable = true
-        case "-o", "-ol", "-olh":
+        case "-o":
             orderBySize = true
+            longListing = true
+            humanReadable = true
+        case "-t":
+            orderByTime = true
             longListing = true
             humanReadable = true
 		default:
@@ -150,7 +162,8 @@ func showHelp() {
 	fmt.Println("  -s        Print files size")
 	fmt.Println("  -hs       Print files size human-readable")
 	fmt.Println("  -sh       Print files size human-readable")
-    fmt.Println("  -o        Sort by size long list human-readable")
+    fmt.Println("  -o        Sort by size")
+    fmt.Println("  -t        Order by time")
     fmt.Println("  -         Show options")
 }
 
