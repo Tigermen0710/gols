@@ -36,3 +36,4 @@ gols [FLAG] [DIRECTORY]
 |  -l  | long listing (-lh for human-readable formt)     | ![image](https://github.com/user-attachments/assets/98a41e56-92b5-46ad-8780-e3c611476207) |
 |  -o  | sort files by size                              | ![image](https://github.com/user-attachments/assets/80e7ce61-b606-413e-9407-f71c812a54a3) |
 |  -t  | order all by time                               | ![image](https://github.com/user-attachments/assets/7037b518-c08a-464c-847e-486966bfa7ff) |
+|  -m  | only show symbolik links                        |                      |
