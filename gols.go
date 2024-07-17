@@ -448,34 +448,117 @@ func printFile(file os.DirEntry, directory string) {
 }
 
 func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
-    if file.Type()&os.ModeSymlink != 0 {
-        linkTarget, err := os.Readlink(filepath.Join(directory, file.Name()))
-        if err == nil {
-            symlinkTarget := filepath.Join(directory, linkTarget)
-            targetInfo, err := os.Stat(symlinkTarget)
-            if err == nil && targetInfo.IsDir() {
-                return brightMagenta + " " + reset // Symbolic link to directory icon
-            } else {
-                return brightCyan + " " + reset // Symbolic link to file icon
-            }
-        }
-    }
+	if file.Type()&os.ModeSymlink != 0 {
+		linkTarget, err := os.Readlink(filepath.Join(directory, file.Name()))
+		if err == nil {
+			symlinkTarget := filepath.Join(directory, linkTarget)
+			targetInfo, err := os.Stat(symlinkTarget)
+			if err == nil && targetInfo.IsDir() {
+				return brightMagenta + " " + reset // Symbolic link to directory icon
+			} else {
+				return brightCyan + " " + reset // Symbolic link to file icon
+			}
+		}
+	}
 
-    if mode.IsDir() {
-        return blue + " " + reset // Directory icon
-    }
+	if mode.IsDir() {
+		return blue + " " + reset // Directory icon
+	}
 
-    ext := filepath.Ext(file.Name())
-    icon, exists := fileIcons[ext]
-    if exists {
-        return icon
-    }
+	ext := filepath.Ext(file.Name())
+	icon, exists := fileIcons[ext]
+	if exists {
+		switch ext {
+		case ".go":
+			return cyan + icon + reset // .go files
+        case ".sh":
+			if mode&os.ModePerm&0111 != 0 {
+				return brightGreen + icon + reset // .sh files - green color for executable
+			} else {
+				return white + icon + reset // .sh files - yellow color for non-executable
+			}
+		case ".cpp", ".hpp", ".cxx", ".hxx":
+			return blue + icon + reset // .cpp, .hpp, .cxx, .hxx files
+		case ".css":
+			return lightblue + icon + reset // .css files
+		case ".c", ".h":
+			return blue + icon + reset // .c, .h files
+		case ".cs":
+			return darkMagenta + icon + reset // .cs files
+		case ".png", ".jpg", ".jpeg", ".webp":
+			return brightMagenta + icon + reset // .png, .jpg, .jpeg, .webp files
+		case ".xcf":
+			return purple + icon + reset // .xcf files
+		case ".xml":
+			return lightCyan + icon + reset // .xml files
+		case ".htm", ".html":
+			return orange + icon + reset // .htm, .html files
+		case ".txt":
+			return white + icon + reset // .txt files
+		case ".mp3", ".m4a", ".ogg", ".flac":
+			return brightBlue + icon + reset // .mp3, .m4a, .ogg, .flac files
+		case ".mp4", ".mkv", ".webm":
+			return brightMagenta + icon + reset // .mp4, .mkv, .webm files
+		case ".zip", ".tar", ".gz", ".bz2", ".xz":
+			return lightPurple + icon + reset // .zip, .tar, .gz, .bz2, .xz files
+		case ".jar", ".java":
+			return orange + icon + reset // .jar, .java files
+		case ".js":
+			return yellow + icon + reset // .js files
+		case ".json":
+			return brightYellow + icon + reset // .json files
+		case ".py":
+			return darkYellow + icon + reset // .py files
+		case ".rs":
+			return darkGray + icon + reset // .rs files
+		case ".yml", ".yaml":
+			return brightRed + icon + reset // .yml, .yaml files
+		case ".toml":
+			return darkOrange + icon + reset // .toml files
+		case ".deb":
+			return lightRed + icon + reset // .deb files
+		case ".md":
+			return cyan + icon + reset // .md files
+		case ".rb":
+			return red + icon + reset // .rb files
+		case ".php":
+			return brightBlue + icon + reset // .php files
+		case ".pl":
+			return red + icon + reset // .pl files
+		case ".svg":
+			return lightPurple + icon + reset // .svg files
+		case ".eps", ".ps":
+			return orange + icon + reset // .eps, .ps files
+		case ".git":
+			return orange + icon + reset // .git files
+		case ".zig":
+			return darkOrange + icon + reset // .zig files
+		case ".xbps":
+			return darkGreen + icon + reset // .xbps files
+		case ".el":
+			return brightMagenta + icon + reset // .el files
+		case ".vim":
+			return darkGreen + icon + reset // .vim files
+		case ".lua":
+			return brightBlue + icon + reset // .lua files
+		case ".pdf":
+			return brightRed + icon + reset // .pdf files
+		case ".epub":
+			return cyan + icon + reset // .epub files
+		case ".conf":
+			return darkGray + icon + reset // .conf files
+		case ".iso":
+			return gray + icon + reset // .iso files
+		default:
+			return icon // Default case, should ideally not hit this
+		}
+	}
 
-    if mode&0111 != 0 {
-        return green + " " + reset // Executable file icon
-    }
+	if mode&os.ModePerm&0111 != 0 {
+		return green + " " + reset // Executable file icon
+	}
 
-    return " " + reset // Regular file icon
+	return " " + reset // Regular file icon
 }
 
 func getIconColor(icon string, mode os.FileMode) string {
