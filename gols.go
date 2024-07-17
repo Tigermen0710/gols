@@ -246,124 +246,124 @@ func getFileSize(files []os.DirEntry, directory string) {
         if file.IsDir() {
             fmt.Println(blue + file.Name() + " " + reset)
         } else {
-            fmt.Println(getFileIcon(file, info.Mode(), directory) + file.Name())
+            fmt.Println(getFileIcon(file, info.Mode(), directory)+ " " + file.Name())
         }
     }
 }
 
 func printLongListing(files []os.DirEntry, directory string) {
-	maxLen := map[string]int{
-		"permissions": 0,
-		"size":        0,
-		"owner":       0,
-		"group":       0,
-		"month":       0,
-		"day":         0,
-		"time":        0,
-	}
+    maxLen := map[string]int{
+        "permissions": 0,
+        "size":        0,
+        "owner":       0,
+        "group":       0,
+        "month":       0,
+        "day":         0,
+        "time":        0,
+    }
 
-	var filteredFiles []os.DirEntry
-	if showOnlySymlinks {
-		for _, file := range files {
-			if file.Type()&os.ModeSymlink != 0 {
-				filteredFiles = append(filteredFiles, file)
-			}
-		}
-	} else {
-		filteredFiles = files
-	}
+    var filteredFiles []os.DirEntry
+    if showOnlySymlinks {
+        for _, file := range files {
+            if file.Type()&os.ModeSymlink != 0 {
+                filteredFiles = append(filteredFiles, file)
+            }
+        }
+    } else {
+        filteredFiles = files
+    }
 
-	for _, file := range filteredFiles {
-		info, err := file.Info()
-		if err != nil {
-			log.Fatal(err)
-		}
+    for _, file := range filteredFiles {
+        info, err := file.Info()
+        if err != nil {
+            log.Fatal(err)
+        }
 
-		permissions := formatPermissions(file, info.Mode(), directory)
-		size := info.Size()
-		sizeStr := fmt.Sprintf("%d", size)
-		if humanReadable {
-			sizeStr = humanizeSize(size)
-		}
+        permissions := formatPermissions(file, info.Mode(), directory)
+        size := info.Size()
+        sizeStr := fmt.Sprintf("%d", size)
+        if humanReadable {
+            sizeStr = humanizeSize(size)
+        }
 
-		owner, err := user.LookupId(fmt.Sprintf("%d", info.Sys().(*syscall.Stat_t).Uid))
-		if err != nil {
-			log.Fatal(err)
-		}
-		group, err := user.LookupGroupId(fmt.Sprintf("%d", info.Sys().(*syscall.Stat_t).Gid))
-		if err != nil {
-			log.Fatal(err)
-		}
+        owner, err := user.LookupId(fmt.Sprintf("%d", info.Sys().(*syscall.Stat_t).Uid))
+        if err != nil {
+            log.Fatal(err)
+        }
+        group, err := user.LookupGroupId(fmt.Sprintf("%d", info.Sys().(*syscall.Stat_t).Gid))
+        if err != nil {
+            log.Fatal(err)
+        }
 
-		modTime := info.ModTime()
-		month := modTime.Format("Jan")
-		day := fmt.Sprintf("%2d", modTime.Day())
-		timeStr := modTime.Format("15:04:05 2006")
+        modTime := info.ModTime()
+        month := modTime.Format("Jan")
+        day := fmt.Sprintf("%2d", modTime.Day())
+        timeStr := modTime.Format("15:04:05 2006")
 
-		if len(permissions) > maxLen["permissions"] {
-			maxLen["permissions"] = len(permissions)
-		}
-		if len(sizeStr) > maxLen["size"] {
-			maxLen["size"] = len(sizeStr)
-		}
-		if len(owner.Username) > maxLen["owner"] {
-			maxLen["owner"] = len(owner.Username)
-		}
-		if len(group.Name) > maxLen["group"] {
-			maxLen["group"] = len(group.Name)
-		}
-		if len(month) > maxLen["month"] {
-			maxLen["month"] = len(month)
-		}
-		if len(day) > maxLen["day"] {
-			maxLen["day"] = len(day)
-		}
-		if len(timeStr) > maxLen["time"] {
-			maxLen["time"] = len(timeStr)
-		}
-	}
+        if len(permissions) > maxLen["permissions"] {
+            maxLen["permissions"] = len(permissions)
+        }
+        if len(sizeStr) > maxLen["size"] {
+            maxLen["size"] = len(sizeStr)
+        }
+        if len(owner.Username) > maxLen["owner"] {
+            maxLen["owner"] = len(owner.Username)
+        }
+        if len(group.Name) > maxLen["group"] {
+            maxLen["group"] = len(group.Name)
+        }
+        if len(month) > maxLen["month"] {
+            maxLen["month"] = len(month)
+        }
+        if len(day) > maxLen["day"] {
+            maxLen["day"] = len(day)
+        }
+        if len(timeStr) > maxLen["time"] {
+            maxLen["time"] = len(timeStr)
+        }
+    }
 
-	for _, file := range filteredFiles {
-		info, err := file.Info()
-		if err != nil {
-			log.Fatal(err)
-		}
+    for _, file := range filteredFiles {
+        info, err := file.Info()
+        if err != nil {
+            log.Fatal(err)
+        }
 
-		permissions := formatPermissions(file, info.Mode(), directory)
-		size := info.Size()
-		sizeStr := fmt.Sprintf("%d", size)
-		if humanReadable {
-			sizeStr = humanizeSize(size)
-		}
+        permissions := formatPermissions(file, info.Mode(), directory)
+        size := info.Size()
+        sizeStr := fmt.Sprintf("%d", size)
+        if humanReadable {
+            sizeStr = humanizeSize(size)
+        }
 
-		owner, err := user.LookupId(fmt.Sprintf("%d", info.Sys().(*syscall.Stat_t).Uid))
-		if err != nil {
-			log.Fatal(err)
-		}
-		group, err := user.LookupGroupId(fmt.Sprintf("%d", info.Sys().(*syscall.Stat_t).Gid))
-		if err != nil {
-			log.Fatal(err)
-		}
+        owner, err := user.LookupId(fmt.Sprintf("%d", info.Sys().(*syscall.Stat_t).Uid))
+        if err != nil {
+            log.Fatal(err)
+        }
+        group, err := user.LookupGroupId(fmt.Sprintf("%d", info.Sys().(*syscall.Stat_t).Gid))
+        if err != nil {
+            log.Fatal(err)
+        }
 
-		modTime := info.ModTime()
-		month := modTime.Format("Jan")
-		day := fmt.Sprintf("%2d", modTime.Day())
-		timeStr := modTime.Format("15:04:05 2006")
+        modTime := info.ModTime()
+        month := modTime.Format("Jan")
+        day := fmt.Sprintf("%2d", modTime.Day())
+        timeStr := modTime.Format("15:04:05 2006")
 
-		// Print long listing format with icons and details
-		line := fmt.Sprintf("%-*s %*s %-*s %-*s %-*s %-*s %-*s", maxLen["permissions"], permissions, maxLen["size"], sizeStr, maxLen["owner"], owner.Username, maxLen["group"], group.Name, maxLen["month"], month, maxLen["day"], day, maxLen["time"], timeStr)
-		line += fmt.Sprintf(" %s%s%s", getFileIcon(file, info.Mode(), directory), file.Name(), reset)
+        // Print long listing format with icons and details
+        line := fmt.Sprintf("%-*s %*s %-*s %-*s %-*s %-*s %-*s", maxLen["permissions"], permissions, maxLen["size"], sizeStr, maxLen["owner"], owner.Username, maxLen["group"], group.Name, maxLen["month"], month, maxLen["day"], day, maxLen["time"], timeStr)
+        line += fmt.Sprintf(" %s %s%s", getFileIcon(file, info.Mode(), directory), file.Name(), reset)
 
-		// Check if the file is a symbolic link
-		if file.Type()&os.ModeSymlink != 0 {
-			linkTarget, err := os.Readlink(filepath.Join(directory, file.Name()))
-			if err == nil {
-				line += fmt.Sprintf(" %s==> %s%s", cyan, linkTarget, reset)
-			}
-		}
+        // Check if the file is a symbolic link
+        if file.Type()&os.ModeSymlink != 0 {
+            linkTarget, err := os.Readlink(filepath.Join(directory, file.Name()))
+            if err == nil {
+                line += fmt.Sprintf(" %s==> %s%s", cyan, linkTarget, reset)
+            }
+        }
 
-		fmt.Println(line)
-	}
+        fmt.Println(line)
+    }
 }
 
 func formatPermissions(file os.DirEntry, mode os.FileMode, directory string) string {
