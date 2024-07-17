@@ -536,7 +536,7 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
 		case ".xbps":
 			return darkGreen + icon + reset // .xbps files
 		case ".el":
-			return brightMagenta + icon + reset // .el files
+			return purple + icon + reset // .el files
 		case ".vim":
 			return darkGreen + icon + reset // .vim files
 		case ".lua":
@@ -559,100 +559,6 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
 	}
 
 	return " " + reset // Regular file icon
-}
-
-func getIconColor(icon string, mode os.FileMode) string {
-	// For executable files, return green icon
-	if mode&0111 != 0 {
-		return green + icon + reset
-	}
-	// For other icons, return default color based on extension
-	switch icon {
-	case " ":
-		return cyan + icon + reset // .go files
-	case " ":
-		return white + icon + reset // .sh files
-	case " ":
-		return blue + icon + reset // .cpp, .hpp, .cxx, .hxx files
-	case " ":
-		return lightblue + icon + reset // .css files
-	case " ":
-		return blue + icon + reset // .c .h files
-    case "󰌛 ":
-        return darkMagenta + icon + reset // .cs files
-	case " ":
-		return lightRed + icon + reset // .png, .jpg, .jpeg, .webp files
-	case " ":
-		return purple + icon + reset // .xcf files
-	case " ":
-		return orange + icon + reset // .htm files
-    case "󰗀 ":
-        return lightCyan + icon + reset // .xml
-    case " ":
-        return orange + icon + reset // .html
-    case " ":
-        return yellow + icon + reset // .flac
-	case " ":
-		return white + icon + reset // .txt files
-	case " ":
-		return brightBlue + icon + reset // .mp3, .ogg files
-	case " ":
-		return brightMagenta + icon + reset // .mp4 .mp4 .webm files
-	case "󰿺 ":
-		return brightYellow + icon + reset // .zip, .bz2, .xz files
-    case "󰛫 ":
-		return yellow + icon + reset // .tar .gz files
-	case " ":
-		return orange + icon + reset // .jar, .java files
-	case " ":
-		return yellow + icon + reset // .js files
-    case " ":
-		return brightYellow + icon + reset // .json files
-	case " ":
-		return darkYellow + icon + reset // .py files
-	case " ":
-		return darkGray + icon + reset // .rs files
-    case " ":
-        return brightRed + icon + reset // .yml .yaml files
-    case " ":
-        return darkOrange + icon + reset // .toml files
-	case " ":
-		return red + icon + reset // .deb files
-	case " ":
-		return cyan + icon + reset // .md files
-	case " ":
-		return red + icon + reset // .rb files
-	case " ":
-		return brightBlue + icon + reset // .php files
-	case " ":
-		return red + icon + reset // .pl files
-	case " ":
-		return orange + icon + reset // .eps, .ps files
-    case "󰜡 ":
-        return orange + icon + reset // .svg files
-	case " ":
-		return orange + icon + reset // .git files
-	case " ":
-		return darkOrange + icon + reset // .zig files
-	case " ":
-		return darkGreen + icon + reset // .xbps files
-    case "i":
-        return purple + icon + reset // .el files
-    case " ":
-        return green + icon + reset // .vim files
-    case " ":
-        return blue + icon + reset // .lua files
-    case " ":
-        return red + icon + reset // .pdf files
-    case "󰂺 ":
-        return blue + icon + reset // .epub files
-    case " ":
-        return gray + icon + reset // .conf files
-    case "󰗮 ":
-        return gray + icon + reset // .iso files
-	default:
-		return icon + reset // Default to icon without color for unknown extensions
-	}
 }
 
 func humanizeSize(size int64) string {
