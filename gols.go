@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
+    "sort"
 	"strings"
 	"syscall"
 )
@@ -28,6 +29,7 @@ var (
 	longListing   bool
 	humanReadable bool
 	fileSize      bool
+    orderBySize   bool
 
 	// File icons based on extensions
 	fileIcons = map[string]string{
@@ -92,7 +94,13 @@ func main() {
 		fmt.Println("No files found.")
 		return
 	}
-
+    if orderBySize {
+		sort.Slice(files, func(i, j int) bool {
+			info1, _ := files[i].Info()
+			info2, _ := files[j].Info()
+			return info1.Size() < info2.Size()
+		})
+	}
 	if longListing {
 		printLongListing(files, directory)
 	} else if fileSize {
@@ -103,11 +111,12 @@ func main() {
 }
 
 func parseFlags() {
-	for _, arg := range os.Args[1:] {
+	for i := 1; i < len(os.Args); i++ {
+		arg := os.Args[i]
 		switch arg {
 		case "-l":
 			longListing = true
-		case "-h":
+		case "-":
 			showHelp()
 			os.Exit(0)
 		case "-lh", "-hl":
@@ -118,6 +127,8 @@ func parseFlags() {
 		case "-hs", "-sh":
 			fileSize = true
 			humanReadable = true
+        case "-os":
+            orderBySize = true
 		default:
 			if !strings.HasPrefix(arg, "-") {
 				continue
@@ -131,10 +142,15 @@ func parseFlags() {
 func showHelp() {
 	fmt.Println("Usage: gols [options] [directory]")
 	fmt.Println("Options:")
-	fmt.Println("  -l    Long listing format")
-	fmt.Println("  -lh   Human-readable file sizes")
-	fmt.Println("  -s    print files size")
-	fmt.Println("  -h    Show options")
+	fmt.Println("  -l        Long listing format")
+	fmt.Println("  -lh       Human-readable file sizes")
+	fmt.Println("  -hl       Human-readable file sizes")
+	fmt.Println("  -s        print files size")
+	fmt.Println("  -hs       Print files size human-readable")
+	fmt.Println("  -sh       Print files size human-readable")
+    fmt.Println("  -os       Sort by size")
+    fmt.Println("  -os -lh   Sort by size long list human-readable")
+    fmt.Println("  -         Show options")
 }
 
 func printFilesInColumns(files []os.DirEntry, directory string) {
@@ -177,7 +193,6 @@ func getFileSize(files []os.DirEntry, directory string) {
 			fmt.Println(getFileIcon(file, info.Mode()) + file.Name())
 		}
 	}
-	fmt.Println()
 }
 
 func printLongListing(files []os.DirEntry, directory string) {
