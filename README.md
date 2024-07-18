@@ -31,9 +31,10 @@ gols [FLAG] [DIRECTORY]
 
 | flag |          description                            |       example        |
 |------|-------------------------------------------------|----------------------|
-|  -   | display help options or flags                   |                      |
+|  -   | display help options or flags                   | ![image](https://i.postimg.cc/R6yM3q4S/gols-help.png) |
 |  -s  | show files size (-hs for human-readable format) | ![image](https://github.com/user-attachments/assets/433e18af-b869-4bfc-982a-6528341895a9) |
 |  -l  | long listing (-lh for human-readable formt)     | ![image](https://github.com/user-attachments/assets/98a41e56-92b5-46ad-8780-e3c611476207) |
 |  -o  | sort files by size                              | ![image](https://github.com/user-attachments/assets/80e7ce61-b606-413e-9407-f71c812a54a3) |
 |  -t  | order all by time                               | ![image](https://github.com/user-attachments/assets/7037b518-c08a-464c-847e-486966bfa7ff) |
-|  -m  | only show symbolik links                        |                      |
+|  -m  | only show symbolik links                        | ![image](https://i.postimg.cc/hzfDPVFZ/gols-symb.png) |
+
