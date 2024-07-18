@@ -51,6 +51,7 @@ var (
     orderBySize      bool
     orderByTime      bool
     showOnlySymlinks bool
+    showHidden       bool
 
 	// File icons based on extensions
 	fileIcons = map[string]string{
@@ -146,6 +147,9 @@ func main() {
         return info1.ModTime().Before(info2.ModTime())
     })
     }
+	if !showHidden {
+		files = filterHidden(files)
+	}
 	if longListing {
 		printLongListing(files, directory)
 	} else if fileSize {
@@ -184,6 +188,15 @@ func parseFlags() {
 			showOnlySymlinks = true
 			longListing = true
 			humanReadable = true
+		case "-a":
+			showHidden = true
+		case "-la", "-al":
+			showHidden = true
+			longListing = true
+		case "-lha", "lah", "-alh", "-hal", "-hla":
+			showHidden = true
+			longListing = true
+			humanReadable = true
 		default:
 			if !strings.HasPrefix(arg, "-") {
 				continue
@@ -206,6 +219,7 @@ func showHelp() {
     fmt.Println("  -o        Sort by size")
     fmt.Println("  -t        Order by time")
     fmt.Println("  -m        Only symbolic links are showing")
+    fmt.Println("  -a        Show Hidden files")
     fmt.Println("  -         Show options")
 }
 
@@ -581,6 +595,16 @@ func humanizeSize(size int64) string {
 	default:
 		return fmt.Sprintf("%dB", size)
 	}
+}
+
+func filterHidden(files []os.DirEntry) []os.DirEntry {
+	var filtered []os.DirEntry
+	for _, file := range files {
+		if showHidden || !strings.HasPrefix(file.Name(), ".") {
+			filtered = append(filtered, file)
+		}
+	}
+	return filtered
 }
 
 func printPadding(name string, maxFileNameLength int) {
