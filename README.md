@@ -18,6 +18,9 @@ cd gols
 go build gols.go
 sudo cp gols /usr/local/bin/
 ```
+
+#### Note: gols is in the [AUR](https://aur.archlinux.org/).
+
 ### Usage
 ```bash
 gols
