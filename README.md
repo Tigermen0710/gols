@@ -19,7 +19,7 @@ go build gols.go
 sudo cp gols /usr/local/bin/
 ```
 
-#### Note: gols is in the [AUR](https://aur.archlinux.org/).
+#### Note: gols is in the [AUR](https://aur.archlinux.org/packages/gols).
 
 ### Usage
 ```bash
