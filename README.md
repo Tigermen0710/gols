@@ -21,6 +21,10 @@ sudo cp gols /usr/local/bin/
 
 #### Note: gols is in the [AUR](https://aur.archlinux.org/packages/gols).
 
+```bash
+yay -Sy gols
+```
+
 ### Usage
 ```bash
 gols
