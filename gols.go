@@ -52,10 +52,12 @@ var (
     orderByTime      bool
     showOnlySymlinks bool
     showHidden       bool
+    recursiveListing bool
 
 	// File icons based on extensions
 	fileIcons = map[string]string{
 		".go":   " ",
+        ".mod":  " ",
 		".sh":   " ",
 		".cpp":  " ",
 		".hpp":  " ",
@@ -112,7 +114,19 @@ var (
 		".pdf":  " ",
 		".epub": "󰂺 ",
 		".conf": " ",
-		".iso":  "󰗮 ",
+		".iso":  " ",
+        ".exe":  " ",
+        ".odt":  "󰷈 ",
+        ".ods":  "󰱾 ",
+        ".odp":  "󰈧 ",
+        ".gif":  "󰵸 ",
+        ".tiff": "󰋪 ",
+        ".7z":   " ",
+        ".bat":  " ",
+        ".app":  " ",
+        ".log":  " ",
+        ".sql":  " ",
+        ".db":   " ",
 	}
 )
 
@@ -150,7 +164,9 @@ func main() {
 	if !showHidden {
 		files = filterHidden(files)
 	}
-	if longListing {
+    if recursiveListing {
+		printTree(directory, "", true)
+    } else if longListing {
 		printLongListing(files, directory)
 	} else if fileSize {
 		getFileSize(files, directory)
@@ -197,6 +213,8 @@ func parseFlags() {
 			showHidden = true
 			longListing = true
 			humanReadable = true
+        case "-r":
+			recursiveListing = true
 		default:
 			if !strings.HasPrefix(arg, "-") {
 				continue
@@ -220,6 +238,7 @@ func showHelp() {
     fmt.Println("  -t        Order by time")
     fmt.Println("  -m        Only symbolic links are showing")
     fmt.Println("  -a        Show Hidden files")
+    fmt.Println("  -r        Tree like listiong")
     fmt.Println("  -         Show options")
 }
 
@@ -238,7 +257,6 @@ func printFilesInColumns(files []os.DirEntry, directory string) {
 			printPadding(file.Name(), maxFileNameLength)
 		}
 	}
-	fmt.Println() // Ensure a newline at the end
 }
 
 func getFileSize(files []os.DirEntry, directory string) {
@@ -454,7 +472,7 @@ func printFile(file os.DirEntry, directory string) {
 		log.Fatal(err)
 	}
 	if file.IsDir() {
-		fmt.Print(blue + file.Name() + " " + reset)
+		fmt.Print(blue + " " + file.Name() + reset)
 	} else {
 		fmt.Print(getFileIcon(file, info.Mode(), directory) + file.Name())
 	}
@@ -499,16 +517,18 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
 			return blue + icon + reset // .c, .h files
 		case ".cs":
 			return darkMagenta + icon + reset // .cs files
-		case ".png", ".jpg", ".jpeg", ".webp":
-			return brightMagenta + icon + reset // .png, .jpg, .jpeg, .webp files
+		case ".png", ".jpg", ".jpeg", ".webp", ".7z":
+			return brightMagenta + icon + reset // .png, .jpg, .jpeg, .webp .7z files
+        case ".gif":
+            return magenta + icon + reset
 		case ".xcf":
 			return purple + icon + reset // .xcf files
 		case ".xml":
 			return lightCyan + icon + reset // .xml files
 		case ".htm", ".html":
 			return orange + icon + reset // .htm, .html files
-		case ".txt":
-			return white + icon + reset // .txt files
+		case ".txt", ".app":
+			return white + icon + reset // .txt .app files
 		case ".mp3", ".m4a", ".ogg", ".flac":
 			return brightBlue + icon + reset // .mp3, .m4a, .ogg, .flac files
 		case ".mp4", ".mkv", ".webm":
@@ -519,8 +539,8 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
 			return orange + icon + reset // .jar, .java files
 		case ".js":
 			return yellow + icon + reset // .js files
-		case ".json":
-			return brightYellow + icon + reset // .json files
+		case ".json", ".tiff":
+			return brightYellow + icon + reset // .json .tiff files
 		case ".py":
 			return darkYellow + icon + reset // .py files
 		case ".rs":
@@ -553,16 +573,18 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
 			return purple + icon + reset // .el files
 		case ".vim":
 			return darkGreen + icon + reset // .vim files
-		case ".lua":
-			return brightBlue + icon + reset // .lua files
-		case ".pdf":
-			return brightRed + icon + reset // .pdf files
+		case ".lua", ".sql":
+			return brightBlue + icon + reset // .lua .sql files
+		case ".pdf", ".db":
+			return brightRed + icon + reset // .pdf .db files
 		case ".epub":
 			return cyan + icon + reset // .epub files
-		case ".conf":
-			return darkGray + icon + reset // .conf files
+		case ".conf", ".bat":
+			return darkGray + icon + reset // .conf .bat files
 		case ".iso":
 			return gray + icon + reset // .iso files
+		case ".exe":
+			return brightCyan + icon + reset // .exe files
 		default:
 			return icon // Default case, should ideally not hit this
 		}
@@ -616,4 +638,41 @@ func getFileNameAndExtension(file os.DirEntry) (string, string) {
 	ext := filepath.Ext(file.Name())
 	name := strings.TrimSuffix(file.Name(), ext)
 	return name, ext
+}
+
+func printTree(path, prefix string, isLast bool) {
+	files, err := os.ReadDir(path)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	// Filter out hidden files if showHidden is false
+	var filteredFiles []os.DirEntry
+	for _, file := range files {
+		if showHidden || !strings.HasPrefix(file.Name(), ".") {
+			filteredFiles = append(filteredFiles, file)
+		}
+	}
+
+	for i, file := range filteredFiles {
+		isLastFile := i == len(filteredFiles)-1
+		if isLastFile {
+			fmt.Printf("%s└── ", prefix)
+		} else {
+			fmt.Printf("%s├── ", prefix)
+		}
+
+		printFile(file, path)
+		fmt.Println()
+
+		if file.IsDir() {
+			newPrefix := prefix
+			if isLastFile {
+				newPrefix += "    "
+			} else {
+				newPrefix += "│   "
+			}
+			printTree(filepath.Join(path, file.Name()), newPrefix, isLastFile)
+		}
+	}
 }

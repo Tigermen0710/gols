@@ -1,4 +1,6 @@
 pullRequest.txt
 .goreleaser.yaml
+gols
+tests/
 
 dist/
