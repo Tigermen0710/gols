@@ -1,1 +1,4 @@
 pullRequest.txt
+.goreleaser.yaml
+
+dist/
