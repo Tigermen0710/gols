@@ -518,9 +518,7 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
 		case ".cs":
 			return darkMagenta + icon + reset // .cs files
 		case ".png", ".jpg", ".jpeg", ".JPG", ".webp":
-			return brightMagenta + icon + reset // .png, .jpg, .jpeg, .webp .7z files
-        case ".gif":
-            return magenta + icon + reset
+			return brightMagenta + icon + reset // .png, .jpg, .jpeg, .webp files
 		case ".xcf":
 			return purple + icon + reset // .xcf files
 		case ".xml":
