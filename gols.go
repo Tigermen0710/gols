@@ -67,6 +67,7 @@ var (
 		".cs":   "󰌛 ",
 		".png":  " ",
 		".jpg":  " ",
+		".JPG":  " ",
 		".jpeg": " ",
 		".webp": " ",
 		".xcf":  " ",
@@ -499,7 +500,7 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
 			return blue + icon + reset // .c, .h files
 		case ".cs":
 			return darkMagenta + icon + reset // .cs files
-		case ".png", ".jpg", ".jpeg", ".webp":
+		case ".png", ".jpg", ".jpeg", ".JPG", ".webp":
 			return brightMagenta + icon + reset // .png, .jpg, .jpeg, .webp files
 		case ".xcf":
 			return purple + icon + reset // .xcf files
