@@ -472,7 +472,7 @@ func printFile(file os.DirEntry, directory string) {
 		log.Fatal(err)
 	}
 	if file.IsDir() {
-		fmt.Print(blue + " " + file.Name() + reset)
+		fmt.Print(blue + file.Name() + " " + reset)
 	} else {
 		fmt.Print(getFileIcon(file, info.Mode(), directory) + file.Name())
 	}
