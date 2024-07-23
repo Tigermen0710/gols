@@ -520,6 +520,8 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
 			return darkMagenta + icon + reset // .cs files
 		case ".png", ".jpg", ".jpeg", ".JPG", ".webp":
 			return brightMagenta + icon + reset // .png, .jpg, .jpeg, .webp files
+		case ".gif":
+			return magenta + icon + reset // .gif file
 		case ".xcf":
 			return purple + icon + reset // .xcf files
 		case ".xml":
@@ -532,8 +534,8 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
 			return brightBlue + icon + reset // .mp3, .m4a, .ogg, .flac files
 		case ".mp4", ".mkv", ".webm":
 			return brightMagenta + icon + reset // .mp4, .mkv, .webm files
-		case ".zip", ".tar", ".gz", ".bz2", ".xz":
-			return lightPurple + icon + reset // .zip, .tar, .gz, .bz2, .xz files
+		case ".zip", ".tar", ".gz", ".bz2", ".xz", ".7z":
+			return lightPurple + icon + reset // .zip, .tar, .gz, .bz2, .xz .7z files
 		case ".jar", ".java":
 			return orange + icon + reset // .jar, .java files
 		case ".js":
