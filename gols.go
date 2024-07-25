@@ -172,10 +172,8 @@ func main() {
 		printLongListing(files, directory)
 	} else if fileSize {
 		getFileSize(files, directory)
-	} else if dirOnLeft {
-		printDirsOnleft(files, directory)
 	} else {
-		printFilesInColumns(files, directory)
+		printFilesInColumns(files, directory, dirOnLeft)
 	}
 
 	fmt.Println()
@@ -184,105 +182,63 @@ func main() {
 func parseFlags() {
 	for i := 1; i < len(os.Args); i++ {
 		arg := os.Args[i]
-		switch arg {
-		case "-l":
-			longListing = true
-		case "-":
-			showHelp()
-			os.Exit(0)
-		case "-lh", "-hl":
-			longListing = true
-			humanReadable = true
-		case "-s":
-			fileSize = true
-		case "-hs", "-sh":
-			fileSize = true
-			humanReadable = true
-		case "-o":
-			orderBySize = true
-			longListing = true
-			humanReadable = true
-		case "-t":
-			orderByTime = true
-			longListing = true
-			humanReadable = true
-		case "-m":
-			showOnlySymlinks = true
-			longListing = true
-			humanReadable = true
-		case "-a":
-			showHidden = true
-		case "-la", "-al":
-			showHidden = true
-			longListing = true
-		case "-lha", "lah", "-alh", "-hal", "-hla":
-			showHidden = true
-			longListing = true
-			humanReadable = true
-        case "-r":
-			recursiveListing = true
-		case "-i":
-			dirOnLeft = true
-		case "-si", "-is":
-			fileSize = true
-			dirOnLeft = true
-		case "-his", "-sih", "-ihs", "-hsi", "-ish":
-			dirOnLeft = true
-			fileSize = true
-			humanReadable = true
-		default:
-			if !strings.HasPrefix(arg, "-") {
-				continue
+		if len(arg) > 1 && arg[0] == '-' {
+			for _, ch := range arg[1:] {
+				switch ch {
+				case 'l':
+					longListing = true
+				case 'h':
+					humanReadable = true
+				case 's':
+					fileSize = true
+				case 'o':
+					orderBySize = true
+				case 't':
+					orderByTime = true
+				case 'm':
+					showOnlySymlinks = true
+				case 'a':
+					showHidden = true
+				case 'r':
+					recursiveListing = true
+				case 'i':
+					dirOnLeft = true
+				default:
+					showHelp()
+					os.Exit(1)
+				}
 			}
-			showHelp()
-			os.Exit(1)
 		}
 	}
 }
 
 func showHelp() {
-	fmt.Println("Usage: gols [options] [directory]")
-	fmt.Println("Options:")
+	fmt.Println("Usage: gols [FLAG] [DIRECTORY]")
+	fmt.Println()
+	fmt.Println("FLAGS:")
+	fmt.Println()
+    fmt.Println("  -?        Options")
+	fmt.Println()
 	fmt.Println("  -l        Long listing format")
-	fmt.Println("  -lh       Human-readable file sizes")
-	fmt.Println("  -hl       Human-readable file sizes")
+	fmt.Println("  -h        Human-readable file sizes")
 	fmt.Println("  -s        Print files size")
-	fmt.Println("  -hs       Print files size human-readable")
-	fmt.Println("  -sh       Print files size human-readable")
     fmt.Println("  -o        Sort by size")
     fmt.Println("  -t        Order by time")
     fmt.Println("  -m        Only symbolic links are showing")
     fmt.Println("  -a        Show Hidden files")
     fmt.Println("  -r        Tree like listing")
-    fmt.Println("  -i        show directory icon on left")
-    fmt.Println("  -         Show options")
+    fmt.Println("  -i        Show directory icon on left")
+	fmt.Println()
 }
 
-func printFilesInColumns(files []os.DirEntry, directory string) {
+func printFilesInColumns(files []os.DirEntry, directory string, dirOnLeft bool) {
 	maxFilesInLine := 3
 	maxFileNameLength := 19
 
-	filesInLine := 0
-	for _, file := range files {
-		printFile(file, directory)
-		filesInLine++
-		if filesInLine >= maxFilesInLine || len(file.Name()) > maxFileNameLength {
-			fmt.Println()
-			filesInLine = 0
-		} else {
-			printPadding(file.Name(), maxFileNameLength)
-		}
-	}
-}
-
-func printDirsOnleft(files []os.DirEntry, directory string) {
-	maxFilesInLine := 3
-	maxFileNameLength := 19
-	
 	filesInLine := 0
 	for _, file := range files {
 		if file.IsDir() && dirOnLeft {
-			fmt.Print(blue + " " + file.Name() + reset)
+			fmt.Print(blue + "  " + file.Name() + reset)
 		} else {
 			printFile(file, directory)
 		}
