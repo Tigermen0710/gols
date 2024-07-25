@@ -33,7 +33,7 @@ Assuming you have void-packages.
 ```bash
 git clone https://github.com/elbachir-one/void-templates
 cp void-templates/gols/ void-packages/srcpkgs/
-./xbps-install pkg gols
+./xbps-src pkg gols
 sudo xbps-install -R hostdir/binpkgs gols
 ```
 ## Usage
