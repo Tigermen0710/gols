@@ -53,6 +53,7 @@ var (
     showOnlySymlinks bool
     showHidden       bool
     recursiveListing bool
+    dirOnLeft	  	 bool
 
 	// File icons based on extensions
 	fileIcons = map[string]string{
@@ -171,6 +172,8 @@ func main() {
 		printLongListing(files, directory)
 	} else if fileSize {
 		getFileSize(files, directory)
+	} else if dirOnLeft {
+		printDirsOnleft(files, directory)
 	} else {
 		printFilesInColumns(files, directory)
 	}
@@ -218,6 +221,15 @@ func parseFlags() {
 			humanReadable = true
         case "-r":
 			recursiveListing = true
+		case "-i":
+			dirOnLeft = true
+		case "-si", "-is":
+			fileSize = true
+			dirOnLeft = true
+		case "-his", "-sih", "-ihs", "-hsi", "-ish":
+			dirOnLeft = true
+			fileSize = true
+			humanReadable = true
 		default:
 			if !strings.HasPrefix(arg, "-") {
 				continue
@@ -241,7 +253,8 @@ func showHelp() {
     fmt.Println("  -t        Order by time")
     fmt.Println("  -m        Only symbolic links are showing")
     fmt.Println("  -a        Show Hidden files")
-    fmt.Println("  -r        Tree like listiong")
+    fmt.Println("  -r        Tree like listing")
+    fmt.Println("  -i        show directory icon on left")
     fmt.Println("  -         Show options")
 }
 
@@ -252,6 +265,27 @@ func printFilesInColumns(files []os.DirEntry, directory string) {
 	filesInLine := 0
 	for _, file := range files {
 		printFile(file, directory)
+		filesInLine++
+		if filesInLine >= maxFilesInLine || len(file.Name()) > maxFileNameLength {
+			fmt.Println()
+			filesInLine = 0
+		} else {
+			printPadding(file.Name(), maxFileNameLength)
+		}
+	}
+}
+
+func printDirsOnleft(files []os.DirEntry, directory string) {
+	maxFilesInLine := 3
+	maxFileNameLength := 19
+	
+	filesInLine := 0
+	for _, file := range files {
+		if file.IsDir() && dirOnLeft {
+			fmt.Print(blue + " " + file.Name() + reset)
+		} else {
+			printFile(file, directory)
+		}
 		filesInLine++
 		if filesInLine >= maxFilesInLine || len(file.Name()) > maxFileNameLength {
 			fmt.Println()
@@ -279,7 +313,11 @@ func getFileSize(files []os.DirEntry, directory string) {
             fmt.Print(" ")
         }
         if file.IsDir() {
-            fmt.Println(blue + file.Name() + " " + reset)
+        	if dirOnLeft {
+        		fmt.Println(blue + " " + file.Name() + reset)
+        	} else {
+     			fmt.Println(blue + file.Name() + " " + reset)
+        	}
         } else {
             fmt.Println(getFileIcon(file, info.Mode(), directory)+ " " + file.Name())
         }
