@@ -213,21 +213,22 @@ func parseFlags() {
 }
 
 func showHelp() {
-	fmt.Println("Usage: gols [options] [directory]")
-	fmt.Println("Options:")
+	fmt.Println("Usage: gols [FLAG] [DIRECTORY]")
+	fmt.Println()
+	fmt.Println("FLAGS:")
+	fmt.Println()
+    fmt.Println("  -?        Options")
+	fmt.Println()
 	fmt.Println("  -l        Long listing format")
-	fmt.Println("  -lh       Human-readable file sizes")
-	fmt.Println("  -hl       Human-readable file sizes")
+	fmt.Println("  -h        Human-readable file sizes")
 	fmt.Println("  -s        Print files size")
-	fmt.Println("  -hs       Print files size human-readable")
-	fmt.Println("  -sh       Print files size human-readable")
     fmt.Println("  -o        Sort by size")
     fmt.Println("  -t        Order by time")
     fmt.Println("  -m        Only symbolic links are showing")
     fmt.Println("  -a        Show Hidden files")
     fmt.Println("  -r        Tree like listing")
-    fmt.Println("  -i        show directory icon on left")
-    fmt.Println("  -         Show options")
+    fmt.Println("  -i        Show directory icon on left")
+	fmt.Println()
 }
 
 func printFilesInColumns(files []os.DirEntry, directory string, dirOnLeft bool) {
@@ -237,7 +238,7 @@ func printFilesInColumns(files []os.DirEntry, directory string, dirOnLeft bool) 
 	filesInLine := 0
 	for _, file := range files {
 		if file.IsDir() && dirOnLeft {
-			fmt.Print(blue + " " + file.Name() + reset)
+			fmt.Print(blue + "  " + file.Name() + reset)
 		} else {
 			printFile(file, directory)
 		}
