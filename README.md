@@ -47,14 +47,14 @@ gols [FLAG] [DIRECTORY]
 
 ### Flags
 
-| flag | description                                     |  example  |
-|------|-------------------------------------------------|-----------|
-| -    | display help options or flags                   | ![image](https://i.postimg.cc/Ff3fByr4/flags.png) |
-| -a   | show hidden files or directories                | ![image](https://i.postimg.cc/zGsDxgmV/a-flag.png) |
+| flag | description                                     | example                                                                                   |
+|------|-------------------------------------------------|-------------------------------------------------------------------------------------------|
+| -?   | display help options or flags                   | ![image](https://i.postimg.cc/Ff3fByr4/flags.png)                                         |
+| -a   | show hidden files or directories                | ![image](https://i.postimg.cc/zGsDxgmV/a-flag.png)                                        |
 | -l   | long listing (-lh for human-readable formt)     | ![image](https://github.com/user-attachments/assets/98a41e56-92b5-46ad-8780-e3c611476207) |
-| -m   | only show symbolik links                        | ![image](https://i.postimg.cc/N2f5FZ1s/symlink.png) |
+| -m   | only show symbolik links                        | ![image](https://i.postimg.cc/N2f5FZ1s/symlink.png)                                       |
 | -o   | sort files by size                              | ![image](https://github.com/user-attachments/assets/80e7ce61-b606-413e-9407-f71c812a54a3) |
 | -s   | show files size (-hs for human-readable format) | ![image](https://github.com/user-attachments/assets/433e18af-b869-4bfc-982a-6528341895a9) |
 | -t   | order all by time                               | ![image](https://github.com/user-attachments/assets/7037b518-c08a-464c-847e-486966bfa7ff) |
-| -r   | tree like listing                               | ![image](https://i.postimg.cc/rsdQLxW4/tree.png) |
-| -i   | show directory icon on left                     | 
+| -r   | tree like listing                               | ![image](https://i.postimg.cc/rsdQLxW4/tree.png)                                          |
+| -i   | show directory icon on left                     | ![image](https://i.postimg.cc/Z0tKKdX7/i.png)                                             |
