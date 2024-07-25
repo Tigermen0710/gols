@@ -174,6 +174,8 @@ func main() {
 	} else {
 		printFilesInColumns(files, directory)
 	}
+
+	fmt.Println()
 }
 
 func parseFlags() {
