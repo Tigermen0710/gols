@@ -57,3 +57,4 @@ gols [FLAG] [DIRECTORY]
 | -s   | show files size (-hs for human-readable format) | ![image](https://github.com/user-attachments/assets/433e18af-b869-4bfc-982a-6528341895a9) |
 | -t   | order all by time                               | ![image](https://github.com/user-attachments/assets/7037b518-c08a-464c-847e-486966bfa7ff) |
 | -r   | tree like listing                               | ![image](https://i.postimg.cc/rsdQLxW4/tree.png) |
+| -i   | show directory icon on left                     | 
