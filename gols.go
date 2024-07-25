@@ -172,10 +172,8 @@ func main() {
 		printLongListing(files, directory)
 	} else if fileSize {
 		getFileSize(files, directory)
-	} else if dirOnLeft {
-		printDirsOnleft(files, directory)
 	} else {
-		printFilesInColumns(files, directory)
+		printFilesInColumns(files, directory, dirOnLeft)
 	}
 
 	fmt.Println()
@@ -184,58 +182,32 @@ func main() {
 func parseFlags() {
 	for i := 1; i < len(os.Args); i++ {
 		arg := os.Args[i]
-		switch arg {
-		case "-l":
-			longListing = true
-		case "-":
-			showHelp()
-			os.Exit(0)
-		case "-lh", "-hl":
-			longListing = true
-			humanReadable = true
-		case "-s":
-			fileSize = true
-		case "-hs", "-sh":
-			fileSize = true
-			humanReadable = true
-		case "-o":
-			orderBySize = true
-			longListing = true
-			humanReadable = true
-		case "-t":
-			orderByTime = true
-			longListing = true
-			humanReadable = true
-		case "-m":
-			showOnlySymlinks = true
-			longListing = true
-			humanReadable = true
-		case "-a":
-			showHidden = true
-		case "-la", "-al":
-			showHidden = true
-			longListing = true
-		case "-lha", "lah", "-alh", "-hal", "-hla":
-			showHidden = true
-			longListing = true
-			humanReadable = true
-        case "-r":
-			recursiveListing = true
-		case "-i":
-			dirOnLeft = true
-		case "-si", "-is":
-			fileSize = true
-			dirOnLeft = true
-		case "-his", "-sih", "-ihs", "-hsi", "-ish":
-			dirOnLeft = true
-			fileSize = true
-			humanReadable = true
-		default:
-			if !strings.HasPrefix(arg, "-") {
-				continue
+		if len(arg) > 1 && arg[0] == '-' {
+			for _, ch := range arg[1:] {
+				switch ch {
+				case 'l':
+					longListing = true
+				case 'h':
+					humanReadable = true
+				case 's':
+					fileSize = true
+				case 'o':
+					orderBySize = true
+				case 't':
+					orderByTime = true
+				case 'm':
+					showOnlySymlinks = true
+				case 'a':
+					showHidden = true
+				case 'r':
+					recursiveListing = true
+				case 'i':
+					dirOnLeft = true
+				default:
+					showHelp()
+					os.Exit(1)
+				}
 			}
-			showHelp()
-			os.Exit(1)
 		}
 	}
 }
@@ -258,27 +230,10 @@ func showHelp() {
     fmt.Println("  -         Show options")
 }
 
-func printFilesInColumns(files []os.DirEntry, directory string) {
+func printFilesInColumns(files []os.DirEntry, directory string, dirOnLeft bool) {
 	maxFilesInLine := 3
 	maxFileNameLength := 19
 
-	filesInLine := 0
-	for _, file := range files {
-		printFile(file, directory)
-		filesInLine++
-		if filesInLine >= maxFilesInLine || len(file.Name()) > maxFileNameLength {
-			fmt.Println()
-			filesInLine = 0
-		} else {
-			printPadding(file.Name(), maxFileNameLength)
-		}
-	}
-}
-
-func printDirsOnleft(files []os.DirEntry, directory string) {
-	maxFilesInLine := 3
-	maxFileNameLength := 19
-	
 	filesInLine := 0
 	for _, file := range files {
 		if file.IsDir() && dirOnLeft {
