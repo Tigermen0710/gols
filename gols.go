@@ -207,10 +207,6 @@ func main() {
 	if (hasSpecificFlags && !longListing) || !hasFlags {
 		fmt.Println()
 	}
-
-//	if showOnlySymlinks || orderBySize || showHidden || orderByTime || !hasFlags {
-//		fmt.Println()
-//	}
 }
 
 func listFilesWithExtension(dir string, ext string) ([]os.DirEntry, error) {
@@ -318,7 +314,7 @@ func showHelp() {
 }
 
 func printFilesInColumns(files []os.DirEntry, directory string, dirOnLeft bool) {
-	maxFilesInLine := 3
+	maxFilesInLine := 4
 	maxFileNameLength := 19
 
 	filesInLine := 0
