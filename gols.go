@@ -11,7 +11,6 @@ import (
 	"syscall"
 )
 
-// ANSI escape codes for colors
 const (
 	reset         = "\033[0m"
 	green         = "\033[32m"
@@ -55,7 +54,6 @@ var (
     recursiveListing bool
     dirOnLeft	  	 bool
 
-	// File icons based on extensions
 	fileIcons = map[string]string{
 		".go":   " ",
         ".mod":  " ",
@@ -461,11 +459,9 @@ func printLongListing(files []os.DirEntry, directory string) {
         day := fmt.Sprintf("%2d", modTime.Day())
         timeStr := modTime.Format("15:04:05 2006")
 
-        // Print long listing format with icons and details
         line := fmt.Sprintf("%-*s %*s %-*s %-*s %-*s %-*s %-*s", maxLen["permissions"], permissions, maxLen["size"], sizeStr, maxLen["owner"], owner.Username, maxLen["group"], group.Name, maxLen["month"], month, maxLen["day"], day, maxLen["time"], timeStr)
         line += fmt.Sprintf(" %s %s%s", getFileIcon(file, info.Mode(), directory), file.Name(), reset)
 
-        // Check if the file is a symbolic link
         if file.Type()&os.ModeSymlink != 0 {
             linkTarget, err := os.Readlink(filepath.Join(directory, file.Name()))
             if err == nil {
@@ -565,9 +561,9 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
 			symlinkTarget := filepath.Join(directory, linkTarget)
 			targetInfo, err := os.Stat(symlinkTarget)
 			if err == nil && targetInfo.IsDir() {
-				return brightMagenta + " " + reset // Symbolic link to directory icon
+				return brightMagenta + " " + reset
 			} else {
-				return brightCyan + " " + reset // Symbolic link to file icon
+				return brightCyan + " " + reset
 			}
 		}
 	}
@@ -715,7 +711,6 @@ func printTree(path, prefix string, isLast bool) {
 		log.Fatal(err)
 	}
 
-	// Filter out hidden files if showHidden is false
 	var filteredFiles []os.DirEntry
 	for _, file := range files {
 		if showHidden || !strings.HasPrefix(file.Name(), ".") {
