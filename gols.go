@@ -11,7 +11,6 @@ import (
 	"syscall"
 )
 
-// ANSI escape codes for colors
 const (
 	reset         = "\033[0m"
 	green         = "\033[32m"
@@ -55,7 +54,6 @@ var (
     recursiveListing bool
     dirOnLeft	  	 bool
 
-	// File icons based on extensions
 	fileIcons = map[string]string{
 		".go":   " ",
         ".mod":  " ",
@@ -133,42 +131,70 @@ var (
 )
 
 func main() {
-	parseFlags()
+	args := os.Args[1:]
+	nonFlagArgs, hasFlags, hasSpecificFlags := parseFlags(args)
 
-	directory := "."
-	if len(os.Args) > 1 && !strings.HasPrefix(os.Args[len(os.Args)-1], "-") {
-		directory = os.Args[len(os.Args)-1]
+	var directory string
+	var fileExtension string
+
+	if len(nonFlagArgs) > 0 {
+		directory = nonFlagArgs[0]
+	}
+	if len(nonFlagArgs) > 1 {
+		fileExtension = strings.TrimPrefix(filepath.Ext(nonFlagArgs[1]), ".")
 	}
 
-	files, err := os.ReadDir(directory)
-	if err != nil {
-		log.Fatal(err)
+	if directory == "" {
+		directory = "."
+	}
+
+	var files []os.DirEntry
+	var err error
+
+	if fileExtension != "" {
+		files, err = listFilesWithExtension(directory, fileExtension)
+		if err != nil {
+			log.Fatalf("Error listing files with extension %s: %v", fileExtension, err)
+		}
+	} else {
+		files, err = os.ReadDir(directory)
+		if err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	if len(files) == 0 {
 		fmt.Println("No files found.")
 		return
 	}
-    if orderBySize {
+
+	if !showHidden {
+		files = filterHidden(files)
+	}
+
+	if showOnlySymlinks {
+		files = filterSymlinks(files, directory)
+	}
+
+	if orderBySize {
 		sort.Slice(files, func(i, j int) bool {
 			info1, _ := files[i].Info()
 			info2, _ := files[j].Info()
 			return info1.Size() < info2.Size()
 		})
 	}
-    if orderByTime {
-    sort.Slice(files, func(i, j int) bool {
-        info1, _ := files[i].Info()
-        info2, _ := files[j].Info()
-        return info1.ModTime().Before(info2.ModTime())
-    })
-    }
-	if !showHidden {
-		files = filterHidden(files)
+
+	if orderByTime {
+		sort.Slice(files, func(i, j int) bool {
+			info1, _ := files[i].Info()
+			info2, _ := files[j].Info()
+			return info1.ModTime().Before(info2.ModTime())
+		})
 	}
-    if recursiveListing {
+
+	if recursiveListing {
 		printTree(directory, "", true)
-    } else if longListing {
+	} else if longListing {
 		printLongListing(files, directory)
 	} else if fileSize {
 		getFileSize(files, directory)
@@ -176,13 +202,59 @@ func main() {
 		printFilesInColumns(files, directory, dirOnLeft)
 	}
 
-	fmt.Println()
+	if (hasSpecificFlags && !longListing) || !hasFlags {
+		fmt.Println()
+	}
 }
 
-func parseFlags() {
-	for i := 1; i < len(os.Args); i++ {
-		arg := os.Args[i]
+func listFilesWithExtension(dir string, ext string) ([]os.DirEntry, error) {
+	var result []os.DirEntry
+
+	entries, err := os.ReadDir(dir)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, entry := range entries {
+		if entry.IsDir() {
+			continue
+		}
+		if strings.HasSuffix(entry.Name(), "."+ext) {
+			result = append(result, entry)
+		}
+	}
+	return result, nil
+}
+
+func filterHidden(entries []os.DirEntry) []os.DirEntry {
+	var result []os.DirEntry
+	for _, entry := range entries {
+		if !strings.HasPrefix(entry.Name(), ".") {
+			result = append(result, entry)
+		}
+	}
+	return result
+}
+
+func filterSymlinks(entries []os.DirEntry, dir string) []os.DirEntry {
+	var result []os.DirEntry
+	for _, entry := range entries {
+		fullPath := filepath.Join(dir, entry.Name())
+		if info, err := os.Lstat(fullPath); err == nil && info.Mode()&os.ModeSymlink != 0 {
+			result = append(result, entry)
+		}
+	}
+	return result
+}
+
+func parseFlags(args []string) ([]string, bool, bool) {
+	var nonFlagArgs []string
+	hasFlags := false
+	hasSpecificFlags := false
+	for i := 0; i < len(args); i++ {
+		arg := args[i]
 		if len(arg) > 1 && arg[0] == '-' {
+			hasFlags = true
 			for _, ch := range arg[1:] {
 				switch ch {
 				case 'l':
@@ -193,23 +265,31 @@ func parseFlags() {
 					fileSize = true
 				case 'o':
 					orderBySize = true
+					hasSpecificFlags = true
 				case 't':
 					orderByTime = true
+					hasSpecificFlags = true
 				case 'm':
 					showOnlySymlinks = true
+					hasSpecificFlags = true
 				case 'a':
 					showHidden = true
+					hasSpecificFlags = true
 				case 'r':
 					recursiveListing = true
 				case 'i':
 					dirOnLeft = true
+					hasSpecificFlags = true
 				default:
 					showHelp()
 					os.Exit(1)
 				}
 			}
+		} else {
+			nonFlagArgs = append(nonFlagArgs, arg)
 		}
 	}
+	return nonFlagArgs, hasFlags, hasSpecificFlags
 }
 
 func showHelp() {
@@ -232,7 +312,7 @@ func showHelp() {
 }
 
 func printFilesInColumns(files []os.DirEntry, directory string, dirOnLeft bool) {
-	maxFilesInLine := 3
+	maxFilesInLine := 4
 	maxFileNameLength := 19
 
 	filesInLine := 0
@@ -379,11 +459,9 @@ func printLongListing(files []os.DirEntry, directory string) {
         day := fmt.Sprintf("%2d", modTime.Day())
         timeStr := modTime.Format("15:04:05 2006")
 
-        // Print long listing format with icons and details
         line := fmt.Sprintf("%-*s %*s %-*s %-*s %-*s %-*s %-*s", maxLen["permissions"], permissions, maxLen["size"], sizeStr, maxLen["owner"], owner.Username, maxLen["group"], group.Name, maxLen["month"], month, maxLen["day"], day, maxLen["time"], timeStr)
         line += fmt.Sprintf(" %s %s%s", getFileIcon(file, info.Mode(), directory), file.Name(), reset)
 
-        // Check if the file is a symbolic link
         if file.Type()&os.ModeSymlink != 0 {
             linkTarget, err := os.Readlink(filepath.Join(directory, file.Name()))
             if err == nil {
@@ -483,15 +561,15 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
 			symlinkTarget := filepath.Join(directory, linkTarget)
 			targetInfo, err := os.Stat(symlinkTarget)
 			if err == nil && targetInfo.IsDir() {
-				return brightMagenta + " " + reset // Symbolic link to directory icon
+				return brightMagenta + " " + reset
 			} else {
-				return brightCyan + " " + reset // Symbolic link to file icon
+				return brightCyan + " " + reset
 			}
 		}
 	}
 
 	if mode.IsDir() {
-		return blue + " " + reset // Directory icon
+		return blue + " " + reset
 	}
 
 	ext := filepath.Ext(file.Name())
@@ -499,99 +577,99 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
 	if exists {
 		switch ext {
 		case ".go":
-			return cyan + icon + reset // .go files
+			return cyan + icon + reset
         case ".sh":
 			if mode&os.ModePerm&0111 != 0 {
-				return brightGreen + icon + reset // .sh files - green color for executable
+				return brightGreen + icon + reset
 			} else {
-				return white + icon + reset // .sh files - yellow color for non-executable
+				return white + icon + reset
 			}
 		case ".cpp", ".hpp", ".cxx", ".hxx":
-			return blue + icon + reset // .cpp, .hpp, .cxx, .hxx files
+			return blue + icon + reset
 		case ".css":
-			return lightblue + icon + reset // .css files
+			return lightblue + icon + reset
 		case ".c", ".h":
-			return blue + icon + reset // .c, .h files
+			return blue + icon + reset
 		case ".cs":
-			return darkMagenta + icon + reset // .cs files
+			return darkMagenta + icon + reset
 		case ".png", ".jpg", ".jpeg", ".JPG", ".webp":
-			return brightMagenta + icon + reset // .png, .jpg, .jpeg, .webp files
+			return brightMagenta + icon + reset
 		case ".gif":
-			return magenta + icon + reset // .gif file
+			return magenta + icon + reset
 		case ".xcf":
-			return purple + icon + reset // .xcf files
+			return purple + icon + reset
 		case ".xml":
-			return lightCyan + icon + reset // .xml files
+			return lightCyan + icon + reset
 		case ".htm", ".html":
-			return orange + icon + reset // .htm, .html files
+			return orange + icon + reset
 		case ".txt", ".app":
-			return white + icon + reset // .txt .app files
+			return white + icon + reset
 		case ".mp3", ".m4a", ".ogg", ".flac":
-			return brightBlue + icon + reset // .mp3, .m4a, .ogg, .flac files
+			return brightBlue + icon + reset
 		case ".mp4", ".mkv", ".webm":
-			return brightMagenta + icon + reset // .mp4, .mkv, .webm files
+			return brightMagenta + icon + reset
 		case ".zip", ".tar", ".gz", ".bz2", ".xz", ".7z":
-			return lightPurple + icon + reset // .zip, .tar, .gz, .bz2, .xz .7z files
+			return lightPurple + icon + reset
 		case ".jar", ".java":
-			return orange + icon + reset // .jar, .java files
+			return orange + icon + reset
 		case ".js":
-			return yellow + icon + reset // .js files
+			return yellow + icon + reset
 		case ".json", ".tiff":
-			return brightYellow + icon + reset // .json .tiff files
+			return brightYellow + icon + reset
 		case ".py":
-			return darkYellow + icon + reset // .py files
+			return darkYellow + icon + reset
 		case ".rs":
-			return darkGray + icon + reset // .rs files
+			return darkGray + icon + reset
 		case ".yml", ".yaml":
-			return brightRed + icon + reset // .yml, .yaml files
+			return brightRed + icon + reset
 		case ".toml":
-			return darkOrange + icon + reset // .toml files
+			return darkOrange + icon + reset
 		case ".deb":
-			return lightRed + icon + reset // .deb files
+			return lightRed + icon + reset
 		case ".md":
-			return cyan + icon + reset // .md files
+			return cyan + icon + reset
 		case ".rb":
-			return red + icon + reset // .rb files
+			return red + icon + reset
 		case ".php":
-			return brightBlue + icon + reset // .php files
+			return brightBlue + icon + reset
 		case ".pl":
-			return red + icon + reset // .pl files
+			return red + icon + reset
 		case ".svg":
-			return lightPurple + icon + reset // .svg files
+			return lightPurple + icon + reset
 		case ".eps", ".ps":
-			return orange + icon + reset // .eps, .ps files
+			return orange + icon + reset
 		case ".git":
-			return orange + icon + reset // .git files
+			return orange + icon + reset
 		case ".zig":
-			return darkOrange + icon + reset // .zig files
+			return darkOrange + icon + reset
 		case ".xbps":
-			return darkGreen + icon + reset // .xbps files
+			return darkGreen + icon + reset
 		case ".el":
-			return purple + icon + reset // .el files
+			return purple + icon + reset
 		case ".vim":
-			return darkGreen + icon + reset // .vim files
+			return darkGreen + icon + reset
 		case ".lua", ".sql":
-			return brightBlue + icon + reset // .lua .sql files
+			return brightBlue + icon + reset
 		case ".pdf", ".db":
-			return brightRed + icon + reset // .pdf .db files
+			return brightRed + icon + reset
 		case ".epub":
-			return cyan + icon + reset // .epub files
+			return cyan + icon + reset
 		case ".conf", ".bat":
-			return darkGray + icon + reset // .conf .bat files
+			return darkGray + icon + reset
 		case ".iso":
-			return gray + icon + reset // .iso files
+			return gray + icon + reset
 		case ".exe":
-			return brightCyan + icon + reset // .exe files
+			return brightCyan + icon + reset
 		default:
-			return icon // Default case, should ideally not hit this
+			return icon
 		}
 	}
 
 	if mode&os.ModePerm&0111 != 0 {
-		return green + " " + reset // Executable file icon
+		return green + " " + reset
 	}
 
-	return " " + reset // Regular file icon
+	return " " + reset
 }
 
 func humanizeSize(size int64) string {
@@ -616,16 +694,6 @@ func humanizeSize(size int64) string {
 	}
 }
 
-func filterHidden(files []os.DirEntry) []os.DirEntry {
-	var filtered []os.DirEntry
-	for _, file := range files {
-		if showHidden || !strings.HasPrefix(file.Name(), ".") {
-			filtered = append(filtered, file)
-		}
-	}
-	return filtered
-}
-
 func printPadding(name string, maxFileNameLength int) {
 	padding := maxFileNameLength - len(name)
 	fmt.Print(strings.Repeat(" ", padding))
@@ -643,7 +711,6 @@ func printTree(path, prefix string, isLast bool) {
 		log.Fatal(err)
 	}
 
-	// Filter out hidden files if showHidden is false
 	var filteredFiles []os.DirEntry
 	for _, file := range files {
 		if showHidden || !strings.HasPrefix(file.Name(), ".") {
