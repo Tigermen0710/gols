@@ -54,6 +54,7 @@ var (
     recursiveListing bool
     dirOnLeft	  	 bool
 	oneColumn	     bool
+
 	fileIcons = map[string]string{
 		".go":   " ",
         ".mod":  " ",
@@ -279,9 +280,10 @@ func parseFlags(args []string) ([]string, bool, bool) {
 					recursiveListing = true
 				case 'i':
 					dirOnLeft = true
-					hasSpecificFlags = true
+					hasFlags = true
 				case 'c':
 					oneColumn = true
+					hasFlags = true
 				default:
 					showHelp()
 					os.Exit(1)
@@ -320,11 +322,12 @@ func printFilesInColumns(files []os.DirEntry, directory string, dirOnLeft bool) 
 
 	filesInLine := 0
 	for _, file := range files {
-			if file.IsDir() && dirOnLeft {
-				fmt.Print(blue + "  " + file.Name() + reset)
-			} else {
-				printFile(file, directory)
-			}
+		if file.IsDir() && dirOnLeft {
+			fmt.Print(blue + " " + file.Name() + reset)
+		} else {
+			printFile(file, directory)
+		}
+
 		if !oneColumn {
 			filesInLine++
 			if filesInLine >= maxFilesInLine || len(file.Name()) > maxFileNameLength {
