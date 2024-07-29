@@ -69,3 +69,4 @@ gols [FLAG] [DIRECTORY]
 | -t   | order all by time                               | ![image](https://github.com/user-attachments/assets/7037b518-c08a-464c-847e-486966bfa7ff) |
 | -r   | tree like listing                               | ![image](https://i.postimg.cc/rsdQLxW4/tree.png)                                          |
 | -i   | show directory icon on left                     | ![image](https://i.postimg.cc/Z0tKKdX7/i.png)                                             |
+| -c   | show all files in one column                    | ![-c-flag](https://github.com/user-attachments/assets/07ec7ab1-3740-487c-8602-03963b3c556d) |
