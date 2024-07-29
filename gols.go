@@ -53,7 +53,7 @@ var (
     showHidden       bool
     recursiveListing bool
     dirOnLeft	  	 bool
-
+	oneColumn	     bool
 	fileIcons = map[string]string{
 		".go":   " ",
         ".mod":  " ",
@@ -280,6 +280,8 @@ func parseFlags(args []string) ([]string, bool, bool) {
 				case 'i':
 					dirOnLeft = true
 					hasSpecificFlags = true
+				case 'c':
+					oneColumn = true
 				default:
 					showHelp()
 					os.Exit(1)
@@ -308,6 +310,7 @@ func showHelp() {
     fmt.Println("  -a        Show Hidden files")
     fmt.Println("  -r        Tree like listing")
     fmt.Println("  -i        Show directory icon on left")
+    fmt.Println("  -c        dont't use spacing, print all files in one column")
 	fmt.Println()
 }
 
@@ -317,17 +320,21 @@ func printFilesInColumns(files []os.DirEntry, directory string, dirOnLeft bool) 
 
 	filesInLine := 0
 	for _, file := range files {
-		if file.IsDir() && dirOnLeft {
-			fmt.Print(blue + "  " + file.Name() + reset)
+			if file.IsDir() && dirOnLeft {
+				fmt.Print(blue + "  " + file.Name() + reset)
+			} else {
+				printFile(file, directory)
+			}
+		if !oneColumn {
+			filesInLine++
+			if filesInLine >= maxFilesInLine || len(file.Name()) > maxFileNameLength {
+				fmt.Println()
+				filesInLine = 0
+			} else {
+				printPadding(file.Name(), maxFileNameLength)
+			}
 		} else {
-			printFile(file, directory)
-		}
-		filesInLine++
-		if filesInLine >= maxFilesInLine || len(file.Name()) > maxFileNameLength {
 			fmt.Println()
-			filesInLine = 0
-		} else {
-			printPadding(file.Name(), maxFileNameLength)
 		}
 	}
 }
