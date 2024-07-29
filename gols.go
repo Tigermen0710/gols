@@ -41,6 +41,8 @@ const (
     brightMagenta = "\033[38;5;198m"
     brightCyan    = "\033[38;5;51m"
     brightWhite   = "\033[97m"
+
+	version       = "gols: 0.4.2"
 )
 
 var (
@@ -55,6 +57,7 @@ var (
     dirOnLeft	  	 bool
 	oneColumn	     bool
 	showSummary		 bool
+	showVersion		 bool
 
 	fileIcons = map[string]string{
 		".go":   " ",
@@ -135,6 +138,11 @@ var (
 func main() {
 	args := os.Args[1:]
 	nonFlagArgs, hasFlags, hasSpecificFlags := parseFlags(args)
+
+	if showVersion {
+		fmt.Println(version)
+		return
+	}
 
 	var directory string
 	var fileExtension string
@@ -287,7 +295,9 @@ func parseFlags(args []string) ([]string, bool, bool) {
 					hasFlags = true
 				case 'f':
 					showSummary = true
-					hasFlags =true
+					hasFlags = true
+				case 'v':
+					showVersion = true
 				default:
 					showHelp()
 					os.Exit(1)
@@ -319,6 +329,7 @@ func showHelp() {
     fmt.Println("	-r        Tree like listing")
 	fmt.Println("	-s        Print files size")
     fmt.Println("	-t        Order by time")
+    fmt.Println("	-v        Version")
 	fmt.Println()
 }
 
