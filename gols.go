@@ -284,6 +284,7 @@ func parseFlags(args []string) ([]string, bool, bool) {
 					hasSpecificFlags = true
 				case 'a':
 					showHidden = true
+					hasSpecificFlags = true
 					hasFlags = true
 				case 'r':
 					recursiveListing = true
