@@ -13,35 +13,46 @@ import (
 
 const (
 	reset         = "\033[0m"
-	green         = "\033[32m"
+	black         = "\033[30m"
 	red           = "\033[31m"
+	green         = "\033[32m"
 	yellow        = "\033[33m"
 	blue          = "\033[34m"
 	magenta       = "\033[35m"
-	white         = "\033[97m"
 	cyan          = "\033[36m"
+	white         = "\033[37m"
+	gray          = "\033[90m"
 	orange        = "\033[38;5;208m"
-	purple        = "\033[35m"
-    gray          = "\033[37m"
-    lightRed      = "\033[91m"
-	lightgreen    = "\033[92m"
-	lightyellow   = "\033[93m"
-	lightblue     = "\033[94m"
-	lightPurple   = "\033[95m"
-    lightCyan     = "\033[38;5;87m"
-	darkGreen     = "\033[38;5;22m"
+	lightRed      = "\033[91m"
+	lightGreen    = "\033[92m"
+	lightYellow   = "\033[93m"
+	lightBlue     = "\033[94m"
+	lightMagenta  = "\033[95m"
+	lightCyan     = "\033[96m"
+	lightWhite    = "\033[97m"
+	lightGray     = "\033[37m"
+	lightOrange   = "\033[38;5;214m"
+	lightPink     = "\033[38;5;218m"
+	lightPurple   = "\033[38;5;183m"
+	lightBrown    = "\033[38;5;180m"
+	lightCyanBlue = "\033[38;5;117m"
+	brightOrange  = "\033[38;5;214m"
+	brightPink    = "\033[38;5;213m"
+	brightCyan    = "\033[38;5;51m"
+	brightPurple  = "\033[38;5;135m"
+	brightYellow  = "\033[38;5;226m"
+	brightGreen   = "\033[38;5;46m"
+	brightBlue    = "\033[38;5;33m"
+	brightRed     = "\033[38;5;196m"
+	brightMagenta = "\033[38;5;198m"
+	darkGray      = "\033[38;5;236m"
 	darkOrange    = "\033[38;5;208m"
+	darkGreen     = "\033[38;5;22m"
+	darkCyan      = "\033[38;5;23m"
+	darkMagenta   = "\033[38;5;90m"
 	darkYellow    = "\033[38;5;172m"
+	darkRed       = "\033[38;5;124m"
 	darkBlue      = "\033[38;5;18m"
-	darkMagenta   = "\033[38;5;125m"
-    darkGray      = "\033[90m"
-    brightRed     = "\033[38;5;196m"
-    brightGreen   = "\033[38;5;46m"
-    brightYellow  = "\033[38;5;226m"
-    brightBlue    = "\033[38;5;39m"
-    brightMagenta = "\033[38;5;198m"
-    brightCyan    = "\033[38;5;51m"
-    brightWhite   = "\033[97m"
 
 	version       = "gols: 0.4.2"
 )
@@ -133,6 +144,7 @@ var (
         ".log":  " ",
         ".sql":  " ",
         ".db":   " ",
+		".org":  " ",
 	}
 )
 
@@ -661,7 +673,7 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
 		case ".cpp", ".hpp", ".cxx", ".hxx":
 			return blue + icon + reset
 		case ".css":
-			return lightblue + icon + reset
+			return lightBlue + icon + reset
 		case ".c", ".h":
 			return blue + icon + reset
 		case ".cs":
@@ -671,7 +683,7 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
 		case ".gif":
 			return magenta + icon + reset
 		case ".xcf":
-			return purple + icon + reset
+			return magenta + icon + reset
 		case ".xml":
 			return lightCyan + icon + reset
 		case ".htm", ".html":
@@ -681,7 +693,7 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
 		case ".mp3", ".m4a", ".ogg", ".flac":
 			return brightBlue + icon + reset
 		case ".mp4", ".mkv", ".webm":
-			return brightMagenta + icon + reset
+			return darkMagenta + icon + reset
 		case ".zip", ".tar", ".gz", ".bz2", ".xz", ".7z":
 			return lightPurple + icon + reset
 		case ".jar", ".java":
@@ -719,7 +731,7 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
 		case ".xbps":
 			return darkGreen + icon + reset
 		case ".el":
-			return purple + icon + reset
+			return magenta + icon + reset
 		case ".vim":
 			return darkGreen + icon + reset
 		case ".lua", ".sql":
@@ -734,6 +746,8 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
 			return gray + icon + reset
 		case ".exe":
 			return brightCyan + icon + reset
+		case ".org":
+			return darkMagenta + icon + reset
 		default:
 			return icon
 		}
