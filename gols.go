@@ -387,29 +387,36 @@ func printFilesInColumns(files []os.DirEntry, directory string, dirOnLeft bool, 
 }
 
 func getFileSize(files []os.DirEntry, directory string) {
+    const sizeFieldWidth = 10
+    const spaceBetweenSizeAndIcon = 2
+
     for _, file := range files {
         info, err := file.Info()
         if err != nil {
             log.Fatal(err)
         }
+
         size := info.Size()
         sizeStr := fmt.Sprintf("%d", size)
         if humanReadable {
             sizeStr = humanizeSize(size)
         }
-        var spaces = 10 - len(sizeStr)
+
+        sizeStr = fmt.Sprintf("%*s", sizeFieldWidth, sizeStr)
+
         fmt.Print(sizeStr)
-        for i := 0; i < spaces; i++ {
+        for i := 0; i < spaceBetweenSizeAndIcon; i++ {
             fmt.Print(" ")
         }
+
         if file.IsDir() {
-        	if dirOnLeft {
-        		fmt.Println(blue + " " + file.Name() + reset)
-        	} else {
-     			fmt.Println(blue + file.Name() + " " + reset)
-        	}
+            if dirOnLeft {
+                fmt.Println(blue + " " + file.Name() + reset)
+            } else {
+                fmt.Println(blue + file.Name() + " " + reset)
+            }
         } else {
-            fmt.Println(getFileIcon(file, info.Mode(), directory)+ " " + file.Name())
+            fmt.Println(getFileIcon(file, info.Mode(), directory) + " " + file.Name())
         }
     }
 }
@@ -503,7 +510,7 @@ func printLongListing(files []os.DirEntry, directory string) {
 		timeStr := modTime.Format("15:04:05 2006")
 
 		permissions = green + permissions + reset
-		sizeStr = padRight(sizeStr, maxLen["size"])
+		sizeStr = fmt.Sprintf("%*s", maxLen["size"], sizeStr)
 		ownerStr := cyan + owner.Username + reset
 		groupStr := cyan + group.Name + reset
 		monthStr := magenta + month + reset
@@ -511,9 +518,9 @@ func printLongListing(files []os.DirEntry, directory string) {
 		timeStr = magenta + timeStr + reset
 
 		line := fmt.Sprintf(
-			"%-*s  %*s  %-*s  %-*s %-*s %-*s %-*s %s %s",
+			"%-*s  %s  %-*s  %-*s %-*s %-*s %-*s %s %s",
 			maxLen["permissions"], permissions,
-			maxLen["size"], sizeStr,
+			sizeStr,
 			maxLen["owner"], ownerStr,
 			maxLen["group"], groupStr,
 			maxLen["month"], monthStr,
@@ -536,7 +543,7 @@ func printLongListing(files []os.DirEntry, directory string) {
 		fileCount, dirCount := countFilesAndDirs(files)
 		fmt.Printf("Directories: %s%d%s\n", blue, dirCount, reset)
 		fmt.Printf("Files: %s%d%s\n", red, fileCount, reset)
-		}
+	}
 }
 
 func max(a, b int) int {
