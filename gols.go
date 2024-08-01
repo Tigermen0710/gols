@@ -631,17 +631,17 @@ func countFilesAndDirs(files []os.DirEntry) (int, int) {
 func colorize(char byte) string {
 	switch char {
 	case 'r':
-		return reset + string(char) + reset
+		return reset + magenta + string(char) + reset
 	case 'w':
 		return lightGreen + string(char) + reset
 	case 'x':
-		return reset + string(char) + reset
+		return reset + red + string(char) + reset
 	case 'd':
 		return blue + string(char) + reset
 	case 'l':
 		return brightCyan + string(char) + reset
 	case '-':
-		return red + string(char) + reset
+		return reset + lightWhite + string(char) + reset
 	default:
 		return string(char)
 	}
