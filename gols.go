@@ -7,6 +7,7 @@ import (
 	"os/user"
 	"path/filepath"
     "sort"
+	"strconv"
 	"strings"
 	"syscall"
 )
@@ -54,7 +55,7 @@ const (
 	darkRed       = "\033[38;5;124m"
 	darkBlue      = "\033[38;5;18m"
 
-	version       = "gols: 0.4.2"
+	version       = "gols: 1.2.1"
 )
 
 var (
@@ -70,6 +71,7 @@ var (
 	oneColumn	     bool
 	showSummary		 bool
 	showVersion		 bool
+	maxDepth		 int = -1
 
 	fileIcons = map[string]string{
 		".go":   " ",
@@ -84,8 +86,8 @@ var (
 		".h":    " ",
 		".cs":   "󰌛 ",
 		".png":  " ",
-		".jpg":  " ",
-		".JPG":  " ",
+		".jpg":  "󰈥 ",
+		".JPG":  "󰈥 ",
 		".jpeg": " ",
 		".webp": " ",
 		".xcf":  " ",
@@ -99,7 +101,7 @@ var (
 		".flac": " ",
 		".mp4":  " ",
 		".mkv":  " ",
-		".webm": " ",
+		".webm": "󰃽 ",
 		".zip":  "󰿺 ",
 		".tar":  "󰛫 ",
 		".gz":   "󰛫 ",
@@ -216,11 +218,11 @@ func main() {
 	}
 
 	if recursiveListing {
-		printTree(directory, "", true)
+		printTree(directory, "", true, 0, maxDepth)
 	} else if longListing {
-		printLongListing(files, directory)
+		printLongListing(files, directory, humanReadable)
 	} else if fileSize {
-		getFileSize(files, directory)
+		getFileSize(files, directory, humanReadable, dirOnLeft)
 	} else {
 		printFilesInColumns(files, directory, dirOnLeft, showSummary)
 	}
@@ -274,12 +276,13 @@ func parseFlags(args []string) ([]string, bool, bool) {
 	var nonFlagArgs []string
 	hasFlags := false
 	hasSpecificFlags := false
+
 	for i := 0; i < len(args); i++ {
 		arg := args[i]
 		if len(arg) > 1 && arg[0] == '-' {
 			hasFlags = true
-			for _, ch := range arg[1:] {
-				switch ch {
+			for j := 1; j < len(arg); j++ {
+				switch arg[j] {
 				case 'l':
 					longListing = true
 				case 'h':
@@ -307,9 +310,38 @@ func parseFlags(args []string) ([]string, bool, bool) {
 					oneColumn = true
 				case 'f':
 					showSummary = true
-					hasFlags = true
 				case 'v':
 					showVersion = true
+				case 'd':
+					// Check if there is a number immediately after 'd'
+					if j+1 < len(arg) && arg[j+1] >= '0' && arg[j+1] <= '9' {
+						depthValue := arg[j+1:]
+						maxDepthValue, err := strconv.Atoi(depthValue)
+						if err != nil {
+							fmt.Println("Invalid value for -d")
+							os.Exit(1)
+						}
+						maxDepth = maxDepthValue
+						hasSpecificFlags = true
+						// Skip the rest of the string since we processed the depth value
+						break
+					} else if i+1 < len(args) {
+						// Check if the next argument is the depth value
+						depthValue := args[i+1]
+						maxDepthValue, err := strconv.Atoi(depthValue)
+						if err != nil {
+							fmt.Println("Invalid value for -d")
+							os.Exit(1)
+						}
+						maxDepth = maxDepthValue
+						hasSpecificFlags = true
+						// Skip the next argument since it's the depth value
+						i++
+						break
+					} else {
+						fmt.Println("Missing value for -d")
+						os.Exit(1)
+					}
 				default:
 					showHelp()
 					os.Exit(1)
@@ -332,6 +364,7 @@ func showHelp() {
 	fmt.Println()
     fmt.Println("	-a        Show Hidden files")
     fmt.Println("	-c        Don't use spacing, print all files in one column")
+	fmt.Println("   -d n      Set the depth of the directory tree (n is an integer)")
     fmt.Println("	-f        Show summary of directories and files")
 	fmt.Println("	-h        Human-readable file sizes")
     fmt.Println("	-i        Show directory icon on left")
@@ -386,7 +419,7 @@ func printFilesInColumns(files []os.DirEntry, directory string, dirOnLeft bool, 
 	}
 }
 
-func getFileSize(files []os.DirEntry, directory string) {
+func getFileSize(files []os.DirEntry, directory string, humanReadable, dirOnLeft bool) {
     const sizeFieldWidth = 10
     const spaceBetweenSizeAndIcon = 2
 
@@ -397,10 +430,7 @@ func getFileSize(files []os.DirEntry, directory string) {
         }
 
         size := info.Size()
-        sizeStr := fmt.Sprintf("%d", size)
-        if humanReadable {
-            sizeStr = humanizeSize(size)
-        }
+        sizeStr := formatSize(size, humanReadable)
 
         sizeStr = fmt.Sprintf("%*s", sizeFieldWidth, sizeStr)
 
@@ -419,6 +449,11 @@ func getFileSize(files []os.DirEntry, directory string) {
             fmt.Println(getFileIcon(file, info.Mode(), directory) + " " + file.Name())
         }
     }
+	if showSummary {
+		fileCount, dirCount := countFilesAndDirs(files)
+		fmt.Printf("Directories: %s%d%s\n", blue, dirCount, reset)
+		fmt.Printf("Files: %s%d%s\n", red, fileCount, reset)
+	}
 }
 
 func padRight(str string, length int) string {
@@ -428,7 +463,47 @@ func padRight(str string, length int) string {
     return str
 }
 
-func printLongListing(files []os.DirEntry, directory string) {
+func formatSize(size int64, humanReadable bool) string {
+	const (
+		_  = iota
+		KB = 1 << (10 * iota) // 1024 bytes
+		MB
+		GB
+		TB
+	)
+
+	if humanReadable {
+		// Human-readable format
+		switch {
+		case size >= TB:
+			return fmt.Sprintf("%.2f TB", float64(size)/float64(TB))
+		case size >= GB:
+			return fmt.Sprintf("%.2f GB", float64(size)/float64(GB))
+		case size >= MB:
+			return fmt.Sprintf("%.2f MB", float64(size)/float64(MB))
+		case size >= KB:
+			return fmt.Sprintf("%.2f KB", float64(size)/float64(KB))
+		default:
+			return fmt.Sprintf("%d B", size)
+		}
+	} else {
+		// Plain format with units
+		switch {
+		case size >= TB:
+			return fmt.Sprintf("%d TB", size)
+		case size >= GB:
+			return fmt.Sprintf("%d GB", size)
+		case size >= MB:
+			return fmt.Sprintf("%d MB", size)
+		case size >= KB:
+			return fmt.Sprintf("%d KB", size)
+		default:
+			return fmt.Sprintf("%d B", size)
+		}
+	}
+}
+
+func printLongListing(files []os.DirEntry, directory string, humanReadable bool) {
 	maxLen := map[string]int{
 		"permissions": 0,
 		"size":        0,
@@ -449,10 +524,7 @@ func printLongListing(files []os.DirEntry, directory string) {
 
 		permissions := formatPermissions(file, info.Mode(), directory)
 		size := info.Size()
-		sizeStr := fmt.Sprintf("%d", size)
-		if humanReadable {
-			sizeStr = humanizeSize(size)
-		}
+		sizeStr := formatSize(size, humanReadable) // Use unified formatSize function
 		owner, err := user.LookupId(fmt.Sprintf("%d", info.Sys().(*syscall.Stat_t).Uid))
 		if err != nil {
 			log.Fatal(err)
@@ -492,10 +564,7 @@ func printLongListing(files []os.DirEntry, directory string) {
 
 		permissions := formatPermissions(file, info.Mode(), directory)
 		size := info.Size()
-		sizeStr := fmt.Sprintf("%d", size)
-		if humanReadable {
-			sizeStr = humanizeSize(size)
-		}
+		sizeStr := formatSize(size, humanReadable) // Use unified formatSize function
 		owner, err := user.LookupId(fmt.Sprintf("%d", info.Sys().(*syscall.Stat_t).Uid))
 		if err != nil {
 			log.Fatal(err)
@@ -512,7 +581,7 @@ func printLongListing(files []os.DirEntry, directory string) {
 		permissions = green + permissions + reset
 		sizeStr = fmt.Sprintf("%*s", maxLen["size"], sizeStr)
 		ownerStr := cyan + owner.Username + reset
-		groupStr := cyan + group.Name + reset
+		groupStr := brightBlue + group.Name + reset
 		monthStr := magenta + month + reset
 		dayStr := magenta + day + reset
 		timeStr = magenta + timeStr + reset
@@ -767,28 +836,6 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
 	return " " + reset
 }
 
-func humanizeSize(size int64) string {
-	const (
-		_  = iota
-		KB = 1 << (10 * iota)
-		MB
-		GB
-		TB
-	)
-	switch {
-	case size >= TB:
-		return fmt.Sprintf("%.2f TB", float64(size)/float64(TB))
-	case size >= GB:
-		return fmt.Sprintf("%.2f GB", float64(size)/float64(GB))
-	case size >= MB:
-		return fmt.Sprintf("%.2f MB", float64(size)/float64(MB))
-	case size >= KB:
-		return fmt.Sprintf("%.2f KB", float64(size)/float64(KB))
-	default:
-		return fmt.Sprintf("%d B", size)
-	}
-}
-
 func printPadding(name string, maxFileNameLength int) {
 	padding := maxFileNameLength - len(name)
 	fmt.Print(strings.Repeat(" ", padding))
@@ -800,7 +847,11 @@ func getFileNameAndExtension(file os.DirEntry) (string, string) {
 	return name, ext
 }
 
-func printTree(path, prefix string, isLast bool) {
+func printTree(path, prefix string, isLast bool, currentDepth, maxDepth int) {
+	if maxDepth != -1 && currentDepth > maxDepth {
+		return
+	}
+
 	files, err := os.ReadDir(path)
 	if err != nil {
 		log.Fatal(err)
@@ -831,7 +882,13 @@ func printTree(path, prefix string, isLast bool) {
 			} else {
 				newPrefix += "│   "
 			}
-			printTree(filepath.Join(path, file.Name()), newPrefix, isLastFile)
+			printTree(filepath.Join(path, file.Name()), newPrefix, isLastFile, currentDepth+1, maxDepth)
 		}
+	}
+
+	if showSummary && currentDepth == 0 {
+		fileCount, dirCount := countFilesAndDirs(files)
+		fmt.Printf("Directories: %s%d%s\n", blue, dirCount, reset)
+		fmt.Printf("Files: %s%d%s\n", red, fileCount, reset)
 	}
 }
