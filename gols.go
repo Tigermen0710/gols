@@ -757,6 +757,17 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
 		return blue + " " + reset
 	}
 
+	switch file.Name() {
+	case "Makefile":
+		return darkBlue + " " + reset
+	case "Dockerfile":
+		return lightBlue + " " + reset
+	case "LICENSE":
+		return gray + " " + reset
+	case "config":
+		return lightGray + " " + reset
+	}
+
 	ext := filepath.Ext(file.Name())
 	icon, exists := fileIcons[ext]
 	if exists {
