@@ -313,7 +313,6 @@ func parseFlags(args []string) ([]string, bool, bool) {
 				case 'v':
 					showVersion = true
 				case 'd':
-					// Check if there is a number immediately after 'd'
 					if j+1 < len(arg) && arg[j+1] >= '0' && arg[j+1] <= '9' {
 						depthValue := arg[j+1:]
 						maxDepthValue, err := strconv.Atoi(depthValue)
@@ -323,10 +322,8 @@ func parseFlags(args []string) ([]string, bool, bool) {
 						}
 						maxDepth = maxDepthValue
 						hasSpecificFlags = true
-						// Skip the rest of the string since we processed the depth value
 						break
 					} else if i+1 < len(args) {
-						// Check if the next argument is the depth value
 						depthValue := args[i+1]
 						maxDepthValue, err := strconv.Atoi(depthValue)
 						if err != nil {
@@ -335,7 +332,6 @@ func parseFlags(args []string) ([]string, bool, bool) {
 						}
 						maxDepth = maxDepthValue
 						hasSpecificFlags = true
-						// Skip the next argument since it's the depth value
 						i++
 						break
 					} else {
@@ -465,14 +461,13 @@ func padRight(str string, length int) string {
 func formatSize(size int64, humanReadable bool) string {
 	const (
 		_  = iota
-		KB = 1 << (10 * iota) // 1024 bytes
+		KB = 1 << (10 * iota)
 		MB
 		GB
 		TB
 	)
 
 	if humanReadable {
-		// Human-readable format
 		switch {
 		case size >= TB:
 			return fmt.Sprintf("%.2f TB", float64(size)/float64(TB))
@@ -486,7 +481,6 @@ func formatSize(size int64, humanReadable bool) string {
 			return fmt.Sprintf("%d B", size)
 		}
 	} else {
-		// Plain format with units
 		switch {
 		case size >= TB:
 			return fmt.Sprintf("%d TB", size)
@@ -523,7 +517,7 @@ func printLongListing(files []os.DirEntry, directory string, humanReadable bool)
 
 		permissions := formatPermissions(file, info.Mode(), directory)
 		size := info.Size()
-		sizeStr := formatSize(size, humanReadable) // Use unified formatSize function
+		sizeStr := formatSize(size, humanReadable)
 		owner, err := user.LookupId(fmt.Sprintf("%d", info.Sys().(*syscall.Stat_t).Uid))
 		if err != nil {
 			log.Fatal(err)
@@ -563,7 +557,7 @@ func printLongListing(files []os.DirEntry, directory string, humanReadable bool)
 
 		permissions := formatPermissions(file, info.Mode(), directory)
 		size := info.Size()
-		sizeStr := formatSize(size, humanReadable) // Use unified formatSize function
+		sizeStr := formatSize(size, humanReadable)
 		owner, err := user.LookupId(fmt.Sprintf("%d", info.Sys().(*syscall.Stat_t).Uid))
 		if err != nil {
 			log.Fatal(err)
