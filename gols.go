@@ -631,7 +631,7 @@ func countFilesAndDirs(files []os.DirEntry) (int, int) {
 func colorize(char byte) string {
 	switch char {
 	case 'r':
-		return brightMagenta + string(char) + reset
+		return reset + string(char) + reset
 	case 'w':
 		return lightGreen + string(char) + reset
 	case 'x':
@@ -641,7 +641,7 @@ func colorize(char byte) string {
 	case 'l':
 		return brightCyan + string(char) + reset
 	case '-':
-		return reset + string(char) + reset
+		return red + string(char) + reset
 	default:
 		return string(char)
 	}
