@@ -628,72 +628,102 @@ func countFilesAndDirs(files []os.DirEntry) (int, int) {
     return fileCount, dirCount
 }
 
+func colorize(char byte) string {
+	switch char {
+	case 'r':
+		return brightMagenta + string(char) + reset
+	case 'w':
+		return lightGreen + string(char) + reset
+	case 'x':
+		return reset + string(char) + reset
+	case 'd':
+		return blue + string(char) + reset
+	case 'l':
+		return brightCyan + string(char) + reset
+	case '-':
+		return reset + string(char) + reset
+	default:
+		return string(char)
+	}
+}
+
 func formatPermissions(file os.DirEntry, mode os.FileMode, directory string) string {
-    perms := make([]byte, 10)
-    for i := range perms {
-        perms[i] = '-'
-    }
+	perms := make([]byte, 10)
+	for i := range perms {
+		perms[i] = '-'
+	}
 
-    if file.Type()&os.ModeSymlink != 0 {
-        linkTarget, err := os.Readlink(filepath.Join(directory, file.Name()))
-        if err == nil {
-            symlinkTarget := filepath.Join(directory, linkTarget)
-            targetInfo, err := os.Stat(symlinkTarget)
-            if err == nil && targetInfo.IsDir() {
-                perms[0] = 'l'
-                perms[1] = 'd'
-            } else {
-                perms[0] = 'l'
-            }
-        }
-    } else if mode.IsDir() {
-        perms[0] = 'd'
-    }
+	if file.Type()&os.ModeSymlink != 0 {
+		linkTarget, err := os.Readlink(filepath.Join(directory, file.Name()))
+		if err == nil {
+			symlinkTarget := filepath.Join(directory, linkTarget)
+			targetInfo, err := os.Stat(symlinkTarget)
+			if err == nil && targetInfo.IsDir() {
+				perms[0] = 'l'
+				perms[1] = 'd'
+			} else {
+				perms[0] = 'l'
+			}
+		}
+	} else if mode.IsDir() {
+		perms[0] = 'd'
+	}
 
-    for i, s := range []struct {
-        bit os.FileMode
-        char byte
-    }{
-        {0400, 'r'}, {0200, 'w'}, {0100, 'x'},
-        {0040, 'r'}, {0020, 'w'}, {0010, 'x'},
-        {0004, 'r'}, {0002, 'w'}, {0001, 'x'},
-    } {
-        if mode&s.bit != 0 {
-            perms[i+1] = s.char
-        }
-    }
+	for i, s := range []struct {
+		bit  os.FileMode
+		char byte
+	}{
+		{0400, 'r'}, {0200, 'w'}, {0100, 'x'},
+		{0040, 'r'}, {0020, 'w'}, {0010, 'x'},
+		{0004, 'r'}, {0002, 'w'}, {0001, 'x'},
+	} {
+		if mode&s.bit != 0 {
+			perms[i+1] = s.char
+		}
+	}
 
-    return string(perms)
+	coloredPerms := ""
+	for _, perm := range perms {
+		coloredPerms += colorize(perm)
+	}
+
+	return coloredPerms
 }
 
 func rwx(perm os.FileMode) string {
 	var b strings.Builder
 
 	if perm&0400 != 0 {
-		b.WriteString("r")
+		b.WriteString(magenta + "r" + reset)
 	} else {
-		b.WriteString("-")
+		b.WriteString(orange + "-" + reset)
 	}
 	if perm&0200 != 0 {
-		b.WriteString("w")
+		b.WriteString(green + "w" + reset)
 	} else {
-		b.WriteString("-")
+		b.WriteString(orange + "-" + reset)
 	}
 	if perm&0100 != 0 {
 		if perm&os.ModeSetuid != 0 {
-			b.WriteString("s")
+			b.WriteString(red + "s" + reset)
 		} else {
-			b.WriteString("x")
+			b.WriteString(red + "x" + reset)
 		}
 	} else {
 		if perm&os.ModeSetuid != 0 {
-			b.WriteString("S")
+			b.WriteString(red + "S" + reset)
 		} else {
-			b.WriteString("-")
+			b.WriteString(orange + "-" + reset)
 		}
 	}
 
 	return b.String()
+}
+
+func printEntry(file os.DirEntry, mode os.FileMode, directory string) {
+	perms := formatPermissions(file, mode, directory)
+	name := file.Name()
+	fmt.Printf("%s %s\n", perms, name)
 }
 
 func printFile(file os.DirEntry, directory string) {
