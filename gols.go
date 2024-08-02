@@ -631,17 +631,17 @@ func countFilesAndDirs(files []os.DirEntry) (int, int) {
 func colorize(char byte) string {
 	switch char {
 	case 'r':
-		return brightMagenta + string(char) + reset
+		return reset + magenta + string(char) + reset
 	case 'w':
 		return lightGreen + string(char) + reset
 	case 'x':
-		return reset + string(char) + reset
+		return reset + red + string(char) + reset
 	case 'd':
 		return blue + string(char) + reset
 	case 'l':
 		return brightCyan + string(char) + reset
 	case '-':
-		return reset + string(char) + reset
+		return reset + lightWhite + string(char) + reset
 	default:
 		return string(char)
 	}
@@ -755,6 +755,17 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
 
 	if mode.IsDir() {
 		return blue + " " + reset
+	}
+
+	switch file.Name() {
+	case "Makefile":
+		return darkBlue + " " + reset
+	case "Dockerfile":
+		return lightBlue + " " + reset
+	case "LICENSE":
+		return gray + " " + reset
+	case "config":
+		return lightGray + " " + reset
 	}
 
 	ext := filepath.Ext(file.Name())
