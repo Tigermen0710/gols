@@ -55,23 +55,23 @@ const (
 	darkRed       = "\033[38;5;124m"
 	darkBlue      = "\033[38;5;18m"
 
-	version       = "gols: 1.3.2"
+	version       = "gols: 1.3.3"
 )
 
 var (
-	longListing      bool
-	humanReadable    bool
-	fileSize         bool
+    longListing      bool
+    humanReadable    bool
+    fileSize         bool
     orderBySize      bool
     orderByTime      bool
     showOnlySymlinks bool
     showHidden       bool
     recursiveListing bool
     dirOnLeft	  	 bool
-	oneColumn	     bool
-	showSummary		 bool
-	showVersion		 bool
-	maxDepth		 int = -1
+    oneColumn	     bool
+    showSummary		 bool
+    showVersion		 bool
+    maxDepth		 int = -1
 
 	fileIcons = map[string]string{
 		".go":   " ",
@@ -104,7 +104,7 @@ var (
 		".webm": "󰃽 ",
 		".zip":  "󰿺 ",
 		".tar":  "󰛫 ",
-		".gz":   "󰛫 ",
+		".gz":   " ",
 		".bz2":  "󰿺 ",
 		".xz":   "󰿺 ",
 		".jar":  " ",
@@ -148,7 +148,44 @@ var (
         ".db":   " ",
 		".org":  " ",
 		".ini":  "󱁻 ",
+		".zst":  " ",
+		".tex":  " ",
+        ".bash": " ",
+        ".jai":  "󱢢 ",
+        ".r":    " ",
+        ".swift":"󰛥 ",
+        ".hs":   "󰲒 ",
+        ".v":    " ",
+        ".patch":" ",
+        ".diff": " ",
+        ".lock": "󰈡 ",
+        ".ts":   " ",
 	}
+
+    directoryIcons = map[string]string{
+        "default":      " ",
+        "Music":        "󱍙 ",
+        "Downloads":    "󰉍 ",
+        "Videos":       " ",
+        "Documents":    " ",
+        "Pictures":     " ",
+        "dotfiles":     "󱗜 ",
+        "Public":       " ",
+        "src":          "󰳐 ",
+        "bin":          " ",
+        "docs":         " ",
+        "lib":          " ",
+        ".github":      " ",
+        ".git":         " ",
+        ".config":      " ",
+        ".ssh":         "󰣀 ",
+        ".gnupg":       "󰢬 ",
+        ".icons":       " ",
+        ".fonts":       " ",
+        ".cache":       "󰃨 ",
+        ".emacs.d":     " ",
+        ".vim":         " ",
+    }
 )
 
 func main() {
@@ -437,9 +474,9 @@ func getFileSize(files []os.DirEntry, directory string, humanReadable, dirOnLeft
 
         if file.IsDir() {
             if dirOnLeft {
-                fmt.Println(blue + " " + file.Name() + reset)
+                fmt.Println(blue + directory + file.Name() + reset)
             } else {
-                fmt.Println(blue + file.Name() + " " + reset)
+                fmt.Println(blue + file.Name() + directory + reset)
             }
         } else {
             fmt.Println(getFileIcon(file, info.Mode(), directory) + " " + file.Name())
@@ -609,13 +646,6 @@ func printLongListing(files []os.DirEntry, directory string, humanReadable bool)
 	}
 }
 
-func max(a, b int) int {
-    if a > b {
-        return a
-    }
-    return b
-}
-
 func countFilesAndDirs(files []os.DirEntry) (int, int) {
     fileCount := 0
     dirCount := 0
@@ -733,11 +763,21 @@ func printFile(file os.DirEntry, directory string) {
 		log.Fatal(err)
 	}
 	if file.IsDir() {
-		fmt.Print(blue + file.Name() + " " + reset)
+		icon := getDirectoryIcon(file.Name())
+		fmt.Print(blue + file.Name() + icon + reset)
 	} else {
 		fmt.Print(getFileIcon(file, info.Mode(), directory) + file.Name())
 	}
 	fmt.Print(" ")
+}
+
+func getDirectoryIcon(directory string) string {
+	for dirType, icon := range directoryIcons {
+		if filepath.Base(directory) == dirType {
+			return icon
+		}
+	}
+	return directoryIcons["default"]
 }
 
 func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
@@ -755,7 +795,8 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
 	}
 
 	if mode.IsDir() {
-		return blue + " " + reset
+		icon := getDirectoryIcon(file.Name())
+		return blue + icon + reset
 	}
 
 	switch file.Name() {
@@ -767,6 +808,14 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
 		return gray + " " + reset
 	case "config":
 		return lightGray + " " + reset
+	case "PKGBUILD":
+		return brightBlue + "󰣇 " + reset
+	case ".gitconfig", ".gitignore":
+		return darkOrange + " " + reset
+    case ".xinitrc":
+        return lightGray + " " + reset
+    case ".bashrc", ".zshrc":
+        return lightGray + "󱆃 " + reset
 	}
 
 	ext := filepath.Ext(file.Name())
@@ -785,80 +834,46 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
 			return blue + icon + reset
 		case ".css":
 			return lightBlue + icon + reset
-		case ".c", ".h":
-			return blue + icon + reset
-		case ".cs":
+		case ".c", ".h", ".mp3", ".m4a", ".ogg", ".flac", ".php", ".lua", ".sql":
+			return brightBlue + icon + reset
+		case ".cs", ".mp4", ".mkv", ".webm", ".org":
 			return darkMagenta + icon + reset
 		case ".png", ".jpg", ".jpeg", ".JPG", ".webp":
 			return darkBlue + icon + reset
-		case ".gif":
-			return magenta + icon + reset
-		case ".xcf":
+		case ".gif", ".xcf", ".el":
 			return magenta + icon + reset
 		case ".xml":
 			return lightCyan + icon + reset
-		case ".htm", ".html":
+		case ".htm", ".html", ".java", ".jar", ".git", ".ps", ".eps":
 			return orange + icon + reset
 		case ".txt", ".app":
 			return white + icon + reset
-		case ".mp3", ".m4a", ".ogg", ".flac":
-			return brightBlue + icon + reset
-		case ".mp4", ".mkv", ".webm":
-			return darkMagenta + icon + reset
-		case ".zip", ".tar", ".gz", ".bz2", ".xz", ".7z":
+		case ".zip", ".tar", ".gz", ".bz2", ".xz", ".7z", ".svg":
 			return lightPurple + icon + reset
-		case ".jar", ".java":
-			return orange + icon + reset
 		case ".js":
 			return yellow + icon + reset
 		case ".json", ".tiff":
 			return brightYellow + icon + reset
 		case ".py":
 			return darkYellow + icon + reset
-		case ".rs":
-			return darkGray + icon + reset
-		case ".yml", ".yaml":
+		case ".yml", ".yaml", ".pdf", ".db":
 			return brightRed + icon + reset
-		case ".toml":
+		case ".toml", ".zig":
 			return darkOrange + icon + reset
 		case ".deb":
 			return lightRed + icon + reset
-		case ".md":
+		case ".md", ".epub":
 			return cyan + icon + reset
-		case ".rb":
+		case ".rb", ".cmake", ".pl":
 			return red + icon + reset
-		case ".php":
-			return brightBlue + icon + reset
-		case ".pl":
-			return red + icon + reset
-		case ".svg":
-			return lightPurple + icon + reset
-		case ".eps", ".ps":
-			return orange + icon + reset
-		case ".git":
-			return orange + icon + reset
-		case ".zig":
-			return darkOrange + icon + reset
-		case ".xbps":
+		case ".xbps", ".vim":
 			return darkGreen + icon + reset
-		case ".el":
-			return magenta + icon + reset
-		case ".vim":
-			return darkGreen + icon + reset
-		case ".lua", ".sql":
-			return brightBlue + icon + reset
-		case ".pdf", ".db":
-			return brightRed + icon + reset
-		case ".epub":
-			return cyan + icon + reset
-		case ".conf", ".bat":
+		case ".conf", ".bat", ".rs":
 			return darkGray + icon + reset
 		case ".iso":
 			return gray + icon + reset
 		case ".exe":
 			return brightCyan + icon + reset
-		case ".org":
-			return darkMagenta + icon + reset
 		default:
 			return icon
 		}
