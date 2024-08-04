@@ -171,7 +171,8 @@ var (
 		"Pictures":  " ",
 		"dotfiles":  "󱗜 ",
 		"Public":    " ",
-		"src":       "󰳐 ",
+        "Movies":    "󰎁 ",
+		"src":       "󱧼 ",
 		"bin":       " ",
 		"docs":      " ",
 		"lib":       " ",
@@ -182,9 +183,11 @@ var (
 		".gnupg":    "󰢬 ",
 		".icons":    " ",
 		".fonts":    " ",
+        ".themes":   "󰔎 ",
 		".cache":    "󰃨 ",
 		".emacs.d":  " ",
 		".vim":      " ",
+        ".npm":      " ",
 	}
 )
 
