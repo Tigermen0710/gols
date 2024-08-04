@@ -6,7 +6,7 @@ import (
 	"os"
 	"os/user"
 	"path/filepath"
-    "sort"
+	"sort"
 	"strconv"
 	"strings"
 	"syscall"
@@ -55,137 +55,137 @@ const (
 	darkRed       = "\033[38;5;124m"
 	darkBlue      = "\033[38;5;18m"
 
-	version       = "gols: 1.3.3"
+	version = "gols: 1.3.3"
 )
 
 var (
-    longListing      bool
-    humanReadable    bool
-    fileSize         bool
-    orderBySize      bool
-    orderByTime      bool
-    showOnlySymlinks bool
-    showHidden       bool
-    recursiveListing bool
-    dirOnLeft	  	 bool
-    oneColumn	     bool
-    showSummary		 bool
-    showVersion		 bool
-    maxDepth		 int = -1
+	longListing      bool
+	humanReadable    bool
+	fileSize         bool
+	orderBySize      bool
+	orderByTime      bool
+	showOnlySymlinks bool
+	showHidden       bool
+	recursiveListing bool
+	dirOnLeft        bool
+	oneColumn        bool
+	showSummary      bool
+	showVersion      bool
+	maxDepth         int = -1
 
 	fileIcons = map[string]string{
-		".go":   " ",
-        ".mod":  " ",
-		".sh":   " ",
-		".cpp":  " ",
-		".hpp":  " ",
-		".cxx":  " ",
-		".hxx":  " ",
-		".css":  " ",
-		".c":    " ",
-		".h":    " ",
-		".cs":   "󰌛 ",
-		".png":  " ",
-		".jpg":  "󰈥 ",
-		".JPG":  "󰈥 ",
-		".jpeg": " ",
-		".webp": " ",
-		".xcf":  " ",
-		".xml":  "󰗀 ",
-		".htm":  " ",
-		".html": " ",
-		".txt":  " ",
-		".mp3":  " ",
-		".m4a":  "󱀞 ",
-		".ogg":  " ",
-		".flac": " ",
-		".mp4":  " ",
-		".mkv":  " ",
-		".webm": "󰃽 ",
-		".zip":  "󰿺 ",
-		".tar":  "󰛫 ",
-		".gz":   " ",
-		".bz2":  "󰿺 ",
-		".xz":   "󰿺 ",
-		".jar":  " ",
-		".java": " ",
-		".js":   " ",
-		".json": " ",
-		".py":   " ",
-		".rs":   " ",
-		".yml":  " ",
-		".yaml": " ",
-		".toml": " ",
-		".deb":  " ",
-		".md":   " ",
-		".rb":   " ",
-		".php":  " ",
-		".pl":   " ",
-		".svg":  "󰜡 ",
-		".eps":  " ",
-		".ps":   " ",
-		".git":  " ",
-		".zig":  " ",
-		".xbps": " ",
-		".el":   " ",
-		".vim":  " ",
-		".lua":  " ",
-		".pdf":  " ",
-		".epub": "󰂺 ",
-		".conf": " ",
-		".iso":  " ",
-        ".exe":  " ",
-        ".odt":  "󰷈 ",
-        ".ods":  "󰱾 ",
-        ".odp":  "󰈧 ",
-        ".gif":  "󰵸 ",
-        ".tiff": "󰋪 ",
-        ".7z":   " ",
-        ".bat":  " ",
-        ".app":  " ",
-        ".log":  " ",
-        ".sql":  " ",
-        ".db":   " ",
-		".org":  " ",
-		".ini":  "󱁻 ",
-		".zst":  " ",
-		".tex":  " ",
-        ".bash": " ",
-        ".jai":  "󱢢 ",
-        ".r":    " ",
-        ".swift":"󰛥 ",
-        ".hs":   "󰲒 ",
-        ".v":    " ",
-        ".patch":" ",
-        ".diff": " ",
-        ".lock": "󰈡 ",
-        ".ts":   " ",
+		".go":    " ",
+		".mod":   " ",
+		".sh":    " ",
+		".cpp":   " ",
+		".hpp":   " ",
+		".cxx":   " ",
+		".hxx":   " ",
+		".css":   " ",
+		".c":     " ",
+		".h":     " ",
+		".cs":    "󰌛 ",
+		".png":   " ",
+		".jpg":   "󰈥 ",
+		".JPG":   "󰈥 ",
+		".jpeg":  " ",
+		".webp":  " ",
+		".xcf":   " ",
+		".xml":   "󰗀 ",
+		".htm":   " ",
+		".html":  " ",
+		".txt":   " ",
+		".mp3":   " ",
+		".m4a":   "󱀞 ",
+		".ogg":   " ",
+		".flac":  " ",
+		".mp4":   " ",
+		".mkv":   " ",
+		".webm":  "󰃽 ",
+		".zip":   "󰿺 ",
+		".tar":   "󰛫 ",
+		".gz":    " ",
+		".bz2":   "󰿺 ",
+		".xz":    "󰿺 ",
+		".jar":   " ",
+		".java":  " ",
+		".js":    " ",
+		".json":  " ",
+		".py":    " ",
+		".rs":    " ",
+		".yml":   " ",
+		".yaml":  " ",
+		".toml":  " ",
+		".deb":   " ",
+		".md":    " ",
+		".rb":    " ",
+		".php":   " ",
+		".pl":    " ",
+		".svg":   "󰜡 ",
+		".eps":   " ",
+		".ps":    " ",
+		".git":   " ",
+		".zig":   " ",
+		".xbps":  " ",
+		".el":    " ",
+		".vim":   " ",
+		".lua":   " ",
+		".pdf":   " ",
+		".epub":  "󰂺 ",
+		".conf":  " ",
+		".iso":   " ",
+		".exe":   " ",
+		".odt":   "󰷈 ",
+		".ods":   "󰱾 ",
+		".odp":   "󰈧 ",
+		".gif":   "󰵸 ",
+		".tiff":  "󰋪 ",
+		".7z":    " ",
+		".bat":   " ",
+		".app":   " ",
+		".log":   " ",
+		".sql":   " ",
+		".db":    " ",
+		".org":   " ",
+		".ini":   "󱁻 ",
+		".zst":   " ",
+		".tex":   " ",
+		".bash":  " ",
+		".jai":   "󱢢 ",
+		".r":     " ",
+		".swift": "󰛥 ",
+		".hs":    "󰲒 ",
+		".v":     " ",
+		".patch": " ",
+		".diff":  " ",
+		".lock":  "󰈡 ",
+		".ts":    " ",
 	}
 
-    directoryIcons = map[string]string{
-        "default":      " ",
-        "Music":        "󱍙 ",
-        "Downloads":    "󰉍 ",
-        "Videos":       " ",
-        "Documents":    " ",
-        "Pictures":     " ",
-        "dotfiles":     "󱗜 ",
-        "Public":       " ",
-        "src":          "󰳐 ",
-        "bin":          " ",
-        "docs":         " ",
-        "lib":          " ",
-        ".github":      " ",
-        ".git":         " ",
-        ".config":      " ",
-        ".ssh":         "󰣀 ",
-        ".gnupg":       "󰢬 ",
-        ".icons":       " ",
-        ".fonts":       " ",
-        ".cache":       "󰃨 ",
-        ".emacs.d":     " ",
-        ".vim":         " ",
-    }
+	directoryIcons = map[string]string{
+		"default":   " ",
+		"Music":     "󱍙 ",
+		"Downloads": "󰉍 ",
+		"Videos":    " ",
+		"Documents": " ",
+		"Pictures":  " ",
+		"dotfiles":  "󱗜 ",
+		"Public":    " ",
+		"src":       "󰳐 ",
+		"bin":       " ",
+		"docs":      " ",
+		"lib":       " ",
+		".github":   " ",
+		".git":      " ",
+		".config":   " ",
+		".ssh":      "󰣀 ",
+		".gnupg":    "󰢬 ",
+		".icons":    " ",
+		".fonts":    " ",
+		".cache":    "󰃨 ",
+		".emacs.d":  " ",
+		".vim":      " ",
+	}
 )
 
 func main() {
@@ -394,20 +394,20 @@ func showHelp() {
 	fmt.Println()
 	fmt.Println("FLAGS:")
 	fmt.Println()
-    fmt.Println("	-?        Help")
+	fmt.Println("	-?        Help")
 	fmt.Println()
-    fmt.Println("	-a        Show Hidden files")
-    fmt.Println("	-c        Don't use spacing, print all files in one column")
-    fmt.Println("	-f        Show summary of directories and files")
+	fmt.Println("	-a        Show Hidden files")
+	fmt.Println("	-c        Don't use spacing, print all files in one column")
+	fmt.Println("	-f        Show summary of directories and files")
 	fmt.Println("	-h        Human-readable file sizes")
-    fmt.Println("	-i        Show directory icon on left")
+	fmt.Println("	-i        Show directory icon on left")
 	fmt.Println("	-l        Long listing format")
-    fmt.Println("	-m        Only symbolic links are showing")
-    fmt.Println("	-o        Sort by size")
-    fmt.Println("	-r d n    Tree like listing, set the depth of the directory tree (n is an integer)")
+	fmt.Println("	-m        Only symbolic links are showing")
+	fmt.Println("	-o        Sort by size")
+	fmt.Println("	-r d n    Tree like listing, set the depth of the directory tree (n is an integer)")
 	fmt.Println("	-s        Print files size")
-    fmt.Println("	-t        Order by time")
-    fmt.Println("	-v        Version")
+	fmt.Println("	-t        Order by time")
+	fmt.Println("	-v        Version")
 	fmt.Println()
 }
 
@@ -453,35 +453,35 @@ func printFilesInColumns(files []os.DirEntry, directory string, dirOnLeft bool, 
 }
 
 func getFileSize(files []os.DirEntry, directory string, humanReadable, dirOnLeft bool) {
-    const sizeFieldWidth = 10
-    const spaceBetweenSizeAndIcon = 2
+	const sizeFieldWidth = 10
+	const spaceBetweenSizeAndIcon = 2
 
-    for _, file := range files {
-        info, err := file.Info()
-        if err != nil {
-            log.Fatal(err)
-        }
+	for _, file := range files {
+		info, err := file.Info()
+		if err != nil {
+			log.Fatal(err)
+		}
 
-        size := info.Size()
-        sizeStr := formatSize(size, humanReadable)
+		size := info.Size()
+		sizeStr := formatSize(size, humanReadable)
 
-        sizeStr = fmt.Sprintf("%*s", sizeFieldWidth, sizeStr)
+		sizeStr = fmt.Sprintf("%*s", sizeFieldWidth, sizeStr)
 
-        fmt.Print(sizeStr)
-        for i := 0; i < spaceBetweenSizeAndIcon; i++ {
-            fmt.Print(" ")
-        }
+		fmt.Print(sizeStr)
+		for i := 0; i < spaceBetweenSizeAndIcon; i++ {
+			fmt.Print(" ")
+		}
 
-        if file.IsDir() {
-            if dirOnLeft {
-                fmt.Println(blue + directory + file.Name() + reset)
-            } else {
-                fmt.Println(blue + file.Name() + directory + reset)
-            }
-        } else {
-            fmt.Println(getFileIcon(file, info.Mode(), directory) + " " + file.Name())
-        }
-    }
+		if file.IsDir() {
+			if dirOnLeft {
+				fmt.Println(blue + directory + file.Name() + reset)
+			} else {
+				fmt.Println(blue + file.Name() + directory + reset)
+			}
+		} else {
+			fmt.Println(getFileIcon(file, info.Mode(), directory) + " " + file.Name())
+		}
+	}
 	if showSummary {
 		fileCount, dirCount := countFilesAndDirs(files)
 		fmt.Printf("Directories: %s%d%s\n", blue, dirCount, reset)
@@ -490,10 +490,10 @@ func getFileSize(files []os.DirEntry, directory string, humanReadable, dirOnLeft
 }
 
 func padRight(str string, length int) string {
-    for len(str) < length {
-        str += " "
-    }
-    return str
+	for len(str) < length {
+		str += " "
+	}
+	return str
 }
 
 func formatSize(size int64, humanReadable bool) string {
@@ -647,16 +647,16 @@ func printLongListing(files []os.DirEntry, directory string, humanReadable bool)
 }
 
 func countFilesAndDirs(files []os.DirEntry) (int, int) {
-    fileCount := 0
-    dirCount := 0
-    for _, file := range files {
-        if file.IsDir() {
-            dirCount++
-        } else {
-            fileCount++
-        }
-    }
-    return fileCount, dirCount
+	fileCount := 0
+	dirCount := 0
+	for _, file := range files {
+		if file.IsDir() {
+			dirCount++
+		} else {
+			fileCount++
+		}
+	}
+	return fileCount, dirCount
 }
 
 func colorize(char byte) string {
@@ -812,10 +812,10 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
 		return brightBlue + "󰣇 " + reset
 	case ".gitconfig", ".gitignore":
 		return darkOrange + " " + reset
-    case ".xinitrc":
-        return lightGray + " " + reset
-    case ".bashrc", ".zshrc":
-        return lightGray + "󱆃 " + reset
+	case ".xinitrc":
+		return lightGray + " " + reset
+	case ".bashrc", ".zshrc":
+		return lightGray + "󱆃 " + reset
 	}
 
 	ext := filepath.Ext(file.Name())
@@ -824,7 +824,7 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
 		switch ext {
 		case ".go":
 			return cyan + icon + reset
-        case ".sh":
+		case ".sh":
 			if mode&os.ModePerm&0111 != 0 {
 				return brightGreen + icon + reset
 			} else {
