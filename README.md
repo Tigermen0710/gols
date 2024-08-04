@@ -1,6 +1,6 @@
 # Enhanced Directory Lister (GOLS)
 
-![image](https://i.postimg.cc/y6FhZJfq/golsscreenshot.png)
+![image](https://i.postimg.cc/J0XvZjTH/golsshot.png)
 
 This program lists the files and directories in the current working directory with colored and icon-based outputs for different file types.
 
