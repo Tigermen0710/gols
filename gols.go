@@ -171,7 +171,8 @@ var (
 		"Pictures":  "",
 		"dotfiles":  "󱗜",
 		"Public":    "",
-		"src":       "󰳐",
+        "Movies":    "󰎁",
+        "src":       "󱧼",
 		"bin":       "",
 		"docs":      "",
 		"lib":       "",
@@ -184,8 +185,15 @@ var (
 		".fonts":    "",
 		".cache":    "󰃨",
 		".emacs.d":  "",
+        ".themes":   "󰔎",
+        ".npm":      "",
 		".vim":      "",
 	}
+)
+
+var (
+	iconOther              = "\033[38;5;39m \033[0m"
+	iconDirectory          = "\033[34;1m \033[0m"
 )
 
 func main() {
@@ -262,7 +270,7 @@ func main() {
 	} else if fileSize {
 		getFileSize(files, directory, humanReadable, dirOnLeft)
 	} else {
-		printFilesInColumns(files, directory, dirOnLeft, showSummary)
+		printFilesInColumns(files, directory, dirOnLeft, showSummary, oneColumn)
 	}
 
 	if (hasSpecificFlags && !longListing) || !hasFlags {
@@ -325,6 +333,7 @@ func parseFlags(args []string) ([]string, bool, bool) {
 					longListing = true
 				case 'h':
 					humanReadable = true
+                    hasSpecificFlags = true
 				case 's':
 					fileSize = true
 				case 'o':
@@ -411,45 +420,48 @@ func showHelp() {
 	fmt.Println()
 }
 
-func printFilesInColumns(files []os.DirEntry, directory string, dirOnLeft bool, showSummary bool) {
-	maxFilesInLine := 4
-	maxFileNameLength := 19
+func printFilesInColumns(files []os.DirEntry, directory string, dirOnLeft bool, showSummary bool, oneColumn bool) {
+    const (
+        maxFilesInLine = 4
+        maxFileNameLength = 19
+    )
 
-	filesInLine := 0
-	dirCount := 0
-	fileCount := 0
+    filesInLine := 0
+    dirCount := 0
+    fileCount := 0
 
-	for _, file := range files {
-		if file.IsDir() {
-			dirCount++
-			if dirOnLeft {
-				fmt.Print(blue + "  " + file.Name() + reset)
-			} else {
-				printFile(file, directory)
-			}
-		} else {
-			fileCount++
-			printFile(file, directory)
-		}
+    for _, file := range files {
+        if file.IsDir() {
+            dirCount++
+            if dirOnLeft {
+                fmt.Print(blue + "  " + file.Name() + reset)
+            } else {
+                printFile(file, directory)
+            }
+        } else {
+            fileCount++
+            printFile(file, directory)
+        }
 
-		if !oneColumn {
-			filesInLine++
-			if filesInLine >= maxFilesInLine || len(file.Name()) > maxFileNameLength {
-				fmt.Println()
-				filesInLine = 0
-			} else {
-				printPadding(file.Name(), maxFileNameLength)
-			}
-		} else {
-			fmt.Println()
-		}
-	}
+        if !oneColumn {
+            filesInLine++
+            if filesInLine >= maxFilesInLine || len(file.Name()) > maxFileNameLength {
+                fmt.Println()
+                filesInLine = 0
+            } else {
+                printPadding(file.Name(), maxFileNameLength)
+            }
+        } else {
+            fmt.Println()
+        }
+    }
 
-	if showSummary {
-		fmt.Println()
-		fmt.Printf("Directories: %s%d%s\n", blue, dirCount, reset)
-		fmt.Printf("Files: %s%d%s\n", red, fileCount, reset)
-	}
+    if showSummary {
+        fmt.Println()
+        dirCount, fileCount := countFilesAndDirs(files)
+        fmt.Printf(iconDirectory + " Directories: %s%d%s\n", blue, dirCount, reset)
+        fmt.Printf(iconOther + " Files: %s%d%s\n", red, fileCount, reset)
+    }
 }
 
 func getFileSize(files []os.DirEntry, directory string, humanReadable, dirOnLeft bool) {
@@ -482,10 +494,11 @@ func getFileSize(files []os.DirEntry, directory string, humanReadable, dirOnLeft
 			fmt.Println(getFileIcon(file, info.Mode(), directory) + " " + file.Name())
 		}
 	}
+
 	if showSummary {
 		fileCount, dirCount := countFilesAndDirs(files)
-		fmt.Printf("Directories: %s%d%s\n", blue, dirCount, reset)
-		fmt.Printf("Files: %s%d%s\n", red, fileCount, reset)
+		fmt.Printf(iconDirectory + " Directories: %s%d%s\n", blue, dirCount, reset)
+		fmt.Printf(iconOther + " Files: %s%d%s\n", red, fileCount, reset)
 	}
 }
 
@@ -639,10 +652,10 @@ func printLongListing(files []os.DirEntry, directory string, humanReadable bool)
 		fmt.Println(line)
 	}
 
-	if showSummary {
+    if showSummary {
 		fileCount, dirCount := countFilesAndDirs(files)
-		fmt.Printf("Directories: %s%d%s\n", blue, dirCount, reset)
-		fmt.Printf("Files: %s%d%s\n", red, fileCount, reset)
+		fmt.Printf(iconDirectory + " Directories: %s%d%s\n", blue, dirCount, reset)
+		fmt.Printf(iconOther + " Files: %s%d%s\n", red, fileCount, reset)
 	}
 }
 
@@ -799,7 +812,7 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
 
 	if mode.IsDir() {
 		icon := getDirectoryIcon(file.Name())
-		return blue + icon + reset
+		return blue + icon + " " + reset
 	}
 
 	switch file.Name() {
@@ -941,7 +954,7 @@ func printTree(path, prefix string, isLast bool, currentDepth, maxDepth int) {
 
 	if showSummary && currentDepth == 0 {
 		fileCount, dirCount := countFilesAndDirs(files)
-		fmt.Printf("Directories: %s%d%s\n", blue, dirCount, reset)
-		fmt.Printf("Files: %s%d%s\n", red, fileCount, reset)
+		fmt.Printf(iconDirectory + " Directories: %s%d%s\n", blue, dirCount, reset)
+		fmt.Printf(iconOther + " Files: %s%d%s\n", red, fileCount, reset)
 	}
 }
