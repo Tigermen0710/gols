@@ -189,6 +189,7 @@ func parseFlags(args []string) ([]string, bool, bool) {
 				case 'i':
 					dirOnLeft = true
 					hasSpecificFlags = true
+                    hasFlags = true
 				case 'c':
 					oneColumn = true
 				case 'f':
@@ -651,23 +652,8 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
 		return blue + icon + " " + reset
 	}
 
-	switch file.Name() {
-	case "Makefile":
-		return darkBlue + " " + reset
-	case "Dockerfile":
-		return lightBlue + " " + reset
-	case "LICENSE":
-		return gray + " " + reset
-	case "config":
-		return lightGray + " " + reset
-	case "PKGBUILD":
-		return brightBlue + "󰣇 " + reset
-	case ".gitconfig", ".gitignore":
-		return darkOrange + " " + reset
-	case ".xinitrc":
-		return lightGray + " " + reset
-	case ".bashrc", ".zshrc":
-		return lightGray + "󱆃 " + reset
+    if icon, found := getSpecialFileIcon(file.Name()); found {
+		return icon
 	}
 
 	ext := filepath.Ext(file.Name())
@@ -789,8 +775,14 @@ func printTree(path, prefix string, isLast bool, currentDepth, maxDepth int) {
 	}
 
 	if showSummary && currentDepth == 0 {
+        fmt.Println()
 		fileCount, dirCount := countFilesAndDirs(files)
 		fmt.Printf(iconDirectory + " Directories: %s%d%s\n", blue, dirCount, reset)
 		fmt.Printf(iconOther + " Files: %s%d%s\n", red, fileCount, reset)
 	}
+}
+
+func getSpecialFileIcon(fileName string) (string, bool) {
+	icon, found := specialFileIcons[fileName]
+	return icon, found
 }

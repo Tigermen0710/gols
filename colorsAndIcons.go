@@ -162,9 +162,25 @@ var (
         ".npm":      "",
 		".vim":      "",
 	}
+
+    specialFileIcons = map[string]string{
+        "Makefile":         darkBlue + " " + reset,
+        "Dockerfile":       lightBlue + " " + reset,
+        "LICENSE":          gray + " " + reset,
+        "config":           lightGray + " " + reset,
+        "PKGBUILD":         brightBlue + "󰣇 " + reset,
+        "Gemfile":          brightRed + " " + reset,
+        ".gitconfig":       darkOrange + " " + reset,
+        ".gitignore":       darkOrange + " " + reset,
+        ".gitattributes":   darkOrange + " " + reset,
+        ".xinitrc":         lightGray + " " + reset,
+        ".bashrc":          lightGray + "󱆃 " + reset,
+        ".zshrc":           lightGray + "󱆃 " + reset,
+        ".vscode":          blue + " " + reset,
+    }
 )
 
 var (
-	iconOther              = "\033[38;5;39m \033[0m"
-	iconDirectory          = "\033[34;1m \033[0m"
+	iconOther              = "\033[31m \033[0m"
+	iconDirectory          = "\033[34m \033[0m"
 )
