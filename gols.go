@@ -163,28 +163,28 @@ var (
 	}
 
 	directoryIcons = map[string]string{
-		"default":   " ",
-		"Music":     "󱍙 ",
-		"Downloads": "󰉍 ",
-		"Videos":    " ",
-		"Documents": " ",
-		"Pictures":  " ",
-		"dotfiles":  "󱗜 ",
-		"Public":    " ",
-		"src":       "󰳐 ",
-		"bin":       " ",
-		"docs":      " ",
-		"lib":       " ",
-		".github":   " ",
-		".git":      " ",
-		".config":   " ",
-		".ssh":      "󰣀 ",
-		".gnupg":    "󰢬 ",
-		".icons":    " ",
-		".fonts":    " ",
-		".cache":    "󰃨 ",
-		".emacs.d":  " ",
-		".vim":      " ",
+		"default":   "",
+		"Music":     "󱍙",
+		"Downloads": "󰉍",
+		"Videos":    "",
+		"Documents": "",
+		"Pictures":  "",
+		"dotfiles":  "󱗜",
+		"Public":    "",
+		"src":       "󰳐",
+		"bin":       "",
+		"docs":      "",
+		"lib":       "",
+		".github":   "",
+		".git":      "",
+		".config":   "",
+		".ssh":      "󰣀",
+		".gnupg":    "󰢬",
+		".icons":    "",
+		".fonts":    "",
+		".cache":    "󰃨",
+		".emacs.d":  "",
+		".vim":      "",
 	}
 )
 
@@ -762,9 +762,12 @@ func printFile(file os.DirEntry, directory string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	if file.IsDir() {
+	if file.IsDir() && dirOnLeft {
 		icon := getDirectoryIcon(file.Name())
-		fmt.Print(blue + file.Name() + icon + reset)
+		fmt.Print(blue + icon + " " + file.Name() + reset)
+	} else if file.IsDir() {
+		icon := getDirectoryIcon(file.Name())
+		fmt.Print(blue + file.Name() + " " + icon + reset)
 	} else {
 		fmt.Print(getFileIcon(file, info.Mode(), directory) + file.Name())
 	}
