@@ -330,6 +330,7 @@ func parseFlags(args []string) ([]string, bool, bool) {
 					longListing = true
 				case 'h':
 					humanReadable = true
+                    hasSpecificFlags = true
 				case 's':
 					fileSize = true
 				case 'o':
