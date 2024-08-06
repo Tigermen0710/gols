@@ -807,7 +807,7 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
 
 	if mode.IsDir() {
 		icon := getDirectoryIcon(file.Name())
-		return blue + icon + reset
+		return blue + icon + " " + reset
 	}
 
 	switch file.Name() {
