@@ -486,9 +486,9 @@ func getFileSize(files []os.DirEntry, directory string, humanReadable, dirOnLeft
 
 		if file.IsDir() {
 			if dirOnLeft {
-				fmt.Println(blue + directory + file.Name() + reset)
+				fmt.Println(iconDirectory + " " + blue + file.Name() + reset)
 			} else {
-				fmt.Println(blue + file.Name() + directory + reset)
+				fmt.Println(blue + file.Name() + " " + iconDirectory + " " + reset)
 			}
 		} else {
 			fmt.Println(getFileIcon(file, info.Mode(), directory) + " " + file.Name())
