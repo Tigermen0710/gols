@@ -188,6 +188,11 @@ var (
 	}
 )
 
+var (
+	iconOther              = "\033[38;5;39m \033[0m"
+	iconDirectory          = "\033[34;1m \033[0m"
+)
+
 func main() {
 	args := os.Args[1:]
 	nonFlagArgs, hasFlags, hasSpecificFlags := parseFlags(args)
@@ -446,9 +451,11 @@ func printFilesInColumns(files []os.DirEntry, directory string, dirOnLeft bool, 
 	}
 
 	if showSummary {
-		fmt.Println()
-		fmt.Printf("Directories: %s%d%s\n", blue, dirCount, reset)
-		fmt.Printf("Files: %s%d%s\n", red, fileCount, reset)
+        fmt.Println()
+        fmt.Println()
+		fileCount, dirCount := countFilesAndDirs(files)
+		fmt.Printf(iconDirectory + " Directories: %s%d%s\n", blue, dirCount, reset)
+		fmt.Printf(iconOther + " Files: %s%d%s\n", red, fileCount, reset)
 	}
 }
 
@@ -482,10 +489,11 @@ func getFileSize(files []os.DirEntry, directory string, humanReadable, dirOnLeft
 			fmt.Println(getFileIcon(file, info.Mode(), directory) + " " + file.Name())
 		}
 	}
+
 	if showSummary {
 		fileCount, dirCount := countFilesAndDirs(files)
-		fmt.Printf("Directories: %s%d%s\n", blue, dirCount, reset)
-		fmt.Printf("Files: %s%d%s\n", red, fileCount, reset)
+		fmt.Printf(iconDirectory + " Directories: %s%d%s\n", blue, dirCount, reset)
+		fmt.Printf(iconOther + " Files: %s%d%s\n", red, fileCount, reset)
 	}
 }
 
@@ -639,10 +647,10 @@ func printLongListing(files []os.DirEntry, directory string, humanReadable bool)
 		fmt.Println(line)
 	}
 
-	if showSummary {
+    if showSummary {
 		fileCount, dirCount := countFilesAndDirs(files)
-		fmt.Printf("Directories: %s%d%s\n", blue, dirCount, reset)
-		fmt.Printf("Files: %s%d%s\n", red, fileCount, reset)
+		fmt.Printf(iconDirectory + " Directories: %s%d%s\n", blue, dirCount, reset)
+		fmt.Printf(iconOther + " Files: %s%d%s\n", red, fileCount, reset)
 	}
 }
 
@@ -941,7 +949,7 @@ func printTree(path, prefix string, isLast bool, currentDepth, maxDepth int) {
 
 	if showSummary && currentDepth == 0 {
 		fileCount, dirCount := countFilesAndDirs(files)
-		fmt.Printf("Directories: %s%d%s\n", blue, dirCount, reset)
-		fmt.Printf("Files: %s%d%s\n", red, fileCount, reset)
+		fmt.Printf(iconDirectory + " Directories: %s%d%s\n", blue, dirCount, reset)
+		fmt.Printf(iconOther + " Files: %s%d%s\n", red, fileCount, reset)
 	}
 }
