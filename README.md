@@ -13,6 +13,7 @@ This program lists the files and directories in the current working directory wi
 - Order (sort) files by time or size.
 - Show a tree of current or any directory path.
 - Size of files.
+- Options to show directories or files only.
 - Summary of files and directories.
 - List file based on extention ```gols /path/to/dir/ .go``` to list all go files.
 
@@ -65,8 +66,11 @@ gols [FLAG] [DIRECTORY] [FILES]
 |------|--------------------------------------------------------------|-------------------------------------------------------------------------------------------------|
 | -?   | display help options or flags                                | ![image](https://i.postimg.cc/htsDBSD7/image.png)                                               |
 | -a   | show hidden files or directories                             | ![image](https://i.postimg.cc/zGsDxgmV/a-flag.png)                                              |
+| -A   | show only hidden directories and files                       | ![image](https://i.postimg.cc/SQYzhZCc/A.png)                                                   |
 | -c   | show all files in one column                                 | ![image](https://github.com/user-attachments/assets/07ec7ab1-3740-487c-8602-03963b3c556d)       |
+| -D   | list only directories                                        | ![image](https://i.postimg.cc/52M98M9g/D.png)                                                   |
 | -f   | show a summary of file and directories                       | ![image](https://i.postimg.cc/gcL2ZFDf/ff.png)                                                  |
+| -F   | list files only                                              | ![image](https://i.postimg.cc/Z5FbcDCS/F.png)                                                   |
 | -i   | show directory icon on left                                  | ![image](https://i.postimg.cc/Z0tKKdX7/i.png)                                                   |
 | -l   | long listing                                                 | ![image](https://github.com/user-attachments/assets/98a41e56-92b5-46ad-8780-e3c611476207)       |
 | -m   | only show symbolik links                                     | ![image](https://i.postimg.cc/N2f5FZ1s/symlink.png)                                             |
