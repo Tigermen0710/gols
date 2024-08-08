@@ -140,7 +140,7 @@ var (
         "default":   "",
         "Music":     "󱍙",
         "Downloads": "󰉍",
-        "Videos":    "",
+        "Videos":    "󰨜",
         "Documents": "",
         "Pictures":  "",
         "dotfiles":  "󱗜",
