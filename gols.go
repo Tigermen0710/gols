@@ -316,16 +316,8 @@ func getMaxNameLength(files []os.DirEntry) int {
 }
 
 func printFilesInColumns(files []os.DirEntry, directory string, dirOnLeft bool, showSummary bool) {
-    dirCount := 0
-    fileCount := 0
-
     if oneColumn {
         for _, file := range files {
-            if file.IsDir() {
-                dirCount++
-            } else {
-                fileCount++
-            }
             printFile(file, directory, getMaxNameLength(files), dirOnLeft)
             fmt.Println()
         }
@@ -344,12 +336,6 @@ func printFilesInColumns(files []os.DirEntry, directory string, dirOnLeft bool, 
         filesInLine := 0
 
         for _, file := range files {
-            if file.IsDir() {
-                dirCount++
-            } else {
-                fileCount++
-            }
-
             printFile(file, directory, maxFileNameLength, dirOnLeft)
 
             filesInLine++
@@ -364,8 +350,8 @@ func printFilesInColumns(files []os.DirEntry, directory string, dirOnLeft bool, 
 
     if showSummary {
         fmt.Println()
-        fmt.Printf(iconDirectory+" Directories: %s%d%s\n", blue, dirCount, reset)
-        fmt.Printf(iconOther+" Files: %s%d%s\n", red, fileCount, reset)
+        fmt.Println()
+        printSummary(files, directory)
     }
 }
 
@@ -596,9 +582,8 @@ func getFileSize(files []os.DirEntry, directory string, humanReadable, dirOnLeft
 	}
 
 	if showSummary {
-		fileCount, dirCount := countFilesAndDirs(files)
-		fmt.Printf(iconDirectory + " Directories: %s%d%s\n", blue, dirCount, reset)
-		fmt.Printf(iconOther + " Files: %s%d%s\n", red, fileCount, reset)
+        fmt.Println()
+        printSummary(files, directory)
 	}
 }
 
@@ -753,9 +738,8 @@ func printLongListing(files []os.DirEntry, directory string, humanReadable bool)
 	}
 
     if showSummary {
-		fileCount, dirCount := countFilesAndDirs(files)
-		fmt.Printf(iconDirectory + " Directories: %s%d%s\n", blue, dirCount, reset)
-		fmt.Printf(iconOther + " Files: %s%d%s\n", red, fileCount, reset)
+        fmt.Println()
+        printSummary(filteredFiles, directory)
 	}
 }
 
@@ -983,9 +967,9 @@ func getSpecialFileIcon(fileName string) (string, bool) {
 	return icon, found
 }
 
-func printTree(path, prefix string, isLast bool, currentDepth, maxDepth int) (totalFiles, totalDirs int) {
+func printTree(path, prefix string, isLast bool, currentDepth, maxDepth int) (totalFiles, totalDirs int, allFiles []os.DirEntry) {
 	if maxDepth != -1 && currentDepth > maxDepth {
-		return 0, 0
+		return 0, 0, nil
 	}
 
 	files, err := os.ReadDir(path)
@@ -1012,6 +996,8 @@ func printTree(path, prefix string, isLast bool, currentDepth, maxDepth int) (to
 		printFile(file, path, maxFileNameLength, true)
 		fmt.Println()
 
+		allFiles = append(allFiles, file)
+
 		if file.IsDir() {
 			newPrefix := prefix
 			if isLastFile {
@@ -1019,9 +1005,10 @@ func printTree(path, prefix string, isLast bool, currentDepth, maxDepth int) (to
 			} else {
 				newPrefix += "│   "
 			}
-			subFiles, subDirs := printTree(filepath.Join(path, file.Name()), newPrefix, isLastFile, currentDepth+1, maxDepth)
+			subFiles, subDirs, subAllFiles := printTree(filepath.Join(path, file.Name()), newPrefix, isLastFile, currentDepth+1, maxDepth)
 			totalFiles += subFiles
 			totalDirs += subDirs + 1
+			allFiles = append(allFiles, subAllFiles...)
 		} else {
 			totalFiles++
 		}
@@ -1029,9 +1016,40 @@ func printTree(path, prefix string, isLast bool, currentDepth, maxDepth int) (to
 
 	if currentDepth == 0 && showSummary {
 		fmt.Println()
-		fmt.Printf(iconDirectory + " Directories: %s%d%s\n", blue, totalDirs, reset)
-		fmt.Printf(iconOther + " Files: %s%d%s\n", red, totalFiles, reset)
+		printSummary(allFiles, path)
 	}
 
-	return totalFiles, totalDirs
+	return totalFiles, totalDirs, allFiles
+}
+
+func printSummary(files []os.DirEntry, directory string) {
+	fileCount, dirCount, symlinkFileCount, symlinkDirCount := 0, 0, 0, 0
+
+	for _, file := range files {
+		if file.Type()&os.ModeSymlink != 0 {
+			linkTarget, err := os.Readlink(filepath.Join(directory, file.Name()))
+			if err == nil {
+				targetInfo, err := os.Stat(filepath.Join(directory, linkTarget))
+				if err == nil && targetInfo.IsDir() {
+					symlinkDirCount++
+				} else {
+					symlinkFileCount++
+				}
+			}
+		} else if file.IsDir() {
+			dirCount++
+		} else {
+			fileCount++
+		}
+	}
+
+	fmt.Printf(iconDirectory + " Directories: %s%d%s\n", blue, dirCount, reset)
+	fmt.Printf(iconOther + " Files: %s%d%s\n", red, fileCount, reset)
+
+	if symlinkDirCount > 0 {
+		fmt.Printf(iconSymlinkDir + " Symlinked Directories: %s%d%s\n", magenta, symlinkDirCount, reset)
+	}
+	if symlinkFileCount > 0 {
+		fmt.Printf(iconSymlinkFile + " Symlinked Files: %s%d%s\n", cyan, symlinkFileCount, reset)
+	}
 }
