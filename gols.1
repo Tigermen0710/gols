@@ -1,0 +1,103 @@
+.\" Man page for gols
+.\" Contact: bachiralfa@gmail.com
+.TH GOLS 1 "August 2024" "Version 1.4.2" "User Commands"
+
+.SH NAME
+gols \- a command-line utility for listing.
+
+.SH SYNOPSIS
+.B gols
+.RB [ OPTIONS ]
+.RB [ FILE ]
+.RB [ DIRECTORY ]
+
+.SH DESCRIPTION
+.B gols
+is a command-line tool designed for listing files and directories with various filtering and sorting options. It supports features like recursive listing, file extension filtering, showing file permissions, and more.
+
+.SH OPTIONS
+.TP
+.B \-l
+Enable long listing format, showing detailed information about each file or directory.
+.TP
+.B \-c
+Display the output in one column.
+.TP
+.B \-h
+Display file sizes in a human-readable format.
+.TP
+.B \-s
+Show file sizes.
+.TP
+.B \-o
+Order the files by size.
+.TP
+.B \-t
+Order the files by modification time.
+.TP
+.B \-m
+Show only symbolic links.
+.TP
+.B \-a
+Include hidden files in the listing.
+.TP
+.B \-A
+Show only hidden files.
+.TP
+.B \-r
+List directories and files recursively tree-like.
+.TP
+.B \-i
+Display the icons for directories on the left side.
+.TP
+.B \-f
+Show a summary of the listing.
+.TP
+.B \-v
+Display the version of gols.
+.TP
+.B \-D
+List only directories.
+.TP
+.B \-F
+List only files.
+.TP
+.B \-x ext1,ext2...
+Exclude files with the specified extensions from the listing.
+.TP
+.B \-e extension
+Filter files by the specified extension.
+
+.SH EXAMPLES
+.TP
+List all files in the current directory:
+.B gols
+.TP
+List all hidden files in the current directory:
+.B gols \-A
+.TP
+List files with a specific extension, e.g., `.txt`:
+.B gols \-e txt
+.TP
+List files while excluding specific extensions, e.g., `.log` and `.tmp`:
+.B gols \-x log,tmp
+.TP
+List all files in long format with human-readable file sizes:
+.B gols \-lh
+.TP
+List all directories only:
+.B gols \-D
+.TP
+List all files recursively:
+.B gols \-r
+.TP
+List all files recursively up to a depth of 2:
+.B gols \-rd 2
+
+.SH AUTHOR
+github.com/elbachir-one <bachiralfa@gmail.com>
+
+.SH SEE ALSO
+.BR ls (1),
+.BR find (1),
+.BR grep (1)
