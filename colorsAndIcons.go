@@ -134,6 +134,7 @@ var (
         ".lock":        "󰈡 ",
         ".ts":          " ",
         ".tmux.conf":   " ",
+        ".1":           "󰈚 ",
     }
 
     directoryIcons = map[string]string{
@@ -171,6 +172,8 @@ var (
         "config":           lightGray + " " + reset,
         "PKGBUILD":         brightBlue + "󰣇 " + reset,
         "Gemfile":          brightRed + " " + reset,
+        "template":         darkRed + " " + reset,
+        "TODO":             lightCyanBlue + " " + reset,
         ".gitconfig":       darkOrange + " " + reset,
         ".gitignore":       darkOrange + " " + reset,
         ".gitattributes":   darkOrange + " " + reset,

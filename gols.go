@@ -14,26 +14,30 @@ import (
 )
 
 const (
-	version = "gols: 1.3.3"
+	version = "gols: 1.4.2"
 )
 
 var (
-	longListing      bool
-	humanReadable    bool
-	fileSize         bool
-	orderBySize      bool
-	orderByTime      bool
-	showOnlySymlinks bool
-	showHidden       bool
-	recursiveListing bool
-	dirOnLeft        bool
-	oneColumn        bool
-	showSummary      bool
-	showVersion      bool
-	maxDepth         int = -1
-    listDirsOnly     bool
-    listFilesOnly    bool
-    listHiddenOnly   bool
+    longListing         bool
+    humanReadable       bool
+    fileSize            bool
+    orderBySize         bool
+    orderByTime         bool
+    showOnlySymlinks    bool
+    showHidden          bool
+    recursiveListing    bool
+    dirOnLeft           bool
+    showSummary         bool
+    showVersion         bool
+    maxDepth            int = -1
+    listDirsOnly        bool
+    listFilesOnly       bool
+    listHiddenOnly      bool
+    oneColumn           bool
+    fileExtensions      []string
+    extFlag             string
+    excludeExtensions   bool
+    excludedExts        []string
 )
 
 type winsize struct {
@@ -43,112 +47,213 @@ type winsize struct {
     Ypixel uint16
 }
 
+type fakeDirEntry struct {
+    info os.FileInfo
+}
+
 func main() {
-	args := os.Args[1:]
-	nonFlagArgs, hasFlags, hasSpecificFlags := parseFlags(args)
+    args := os.Args[1:]
+    nonFlagArgs, hasFlags, hasSpecificFlags := parseFlags(args)
 
-	if showVersion {
-		fmt.Println(version)
-		return
-	}
-
-	var directory string
-	var fileExtension string
-
-	if len(nonFlagArgs) > 0 {
-		directory = nonFlagArgs[0]
-	}
-	if len(nonFlagArgs) > 1 {
-		fileExtension = strings.TrimPrefix(filepath.Ext(nonFlagArgs[1]), ".")
-	}
-
-	if directory == "" {
-		directory = "."
-	}
-
-	var files []os.DirEntry
-	var err error
-
-	if fileExtension != "" {
-		files, err = listFilesWithExtension(directory, fileExtension)
-		if err != nil {
-			log.Fatalf("Error listing files with extension %s: %v", fileExtension, err)
-		}
-	} else {
-		files, err = os.ReadDir(directory)
-		if err != nil {
-			log.Fatal(err)
-		}
-	}
-
-	if len(files) == 0 {
-		fmt.Println("No files found.")
-		return
-	}
-
-	if !showHidden {
-		files = filterHidden(files)
-	}
-
-	if showOnlySymlinks {
-		files = filterSymlinks(files, directory)
-	}
-
-        if listDirsOnly {
-        var dirs []os.DirEntry
-        for _, file := range files {
-            if file.IsDir() {
-                dirs = append(dirs, file)
-            }
-        }
-        files = dirs
-    } else if listFilesOnly {
-        var nonDirs []os.DirEntry
-        for _, file := range files {
-            if !file.IsDir() {
-                nonDirs = append(nonDirs, file)
-            }
-        }
-        files = nonDirs
-    } else if listHiddenOnly {
-        var hiddenFiles []os.DirEntry
-        for _, file := range files {
-            if strings.HasPrefix(file.Name(), ".") {
-                hiddenFiles = append(hiddenFiles, file)
-            }
-        }
-        files = hiddenFiles
+    if showVersion {
+        fmt.Println(version)
+        return
     }
 
-	if orderBySize {
-		sort.Slice(files, func(i, j int) bool {
-			info1, _ := files[i].Info()
-			info2, _ := files[j].Info()
-			return info1.Size() < info2.Size()
-		})
-	}
+    var directory string
 
-	if orderByTime {
-		sort.Slice(files, func(i, j int) bool {
-			info1, _ := files[i].Info()
-			info2, _ := files[j].Info()
-			return info1.ModTime().Before(info2.ModTime())
-		})
-	}
+    if len(nonFlagArgs) > 0 {
+        directory = nonFlagArgs[0]
+    }
+    
+    if len(nonFlagArgs) > 1 {
+        fileExtensions = strings.Split(nonFlagArgs[1], ",")
+    } else if extFlag != "" {
+        fileExtensions = strings.Split(extFlag, ",")
+    }
 
-	if recursiveListing {
-		printTree(directory, "", true, 0, maxDepth)
-	} else if longListing {
-		printLongListing(files, directory, humanReadable)
-	} else if fileSize {
-		getFileSize(files, directory, humanReadable, dirOnLeft)
-	} else {
-		printFilesInColumns(files, directory, dirOnLeft, showSummary, oneColumn)
-	}
+    if directory == "" {
+        directory = "."
+    }
 
-	if (hasSpecificFlags && !longListing) || !hasFlags {
-		fmt.Println()
+    var files []os.DirEntry
+    var err error
+    var info os.FileInfo
+
+    info, err = os.Stat(directory)
+    if err != nil {
+        log.Fatalf("Error: %v", err)
+    }
+
+    if info.IsDir() {
+        files, err = os.ReadDir(directory)
+        if err != nil {
+            log.Fatal(err)
+        }
+    } else {
+        files = []os.DirEntry{&fakeDirEntry{info}}
+        directory = filepath.Dir(directory)
+    }
+
+    if len(fileExtensions) > 0 {
+        extSet := make(map[string]struct{})
+        for _, ext := range fileExtensions {
+            ext = strings.TrimPrefix(ext, ".")
+            extSet[ext] = struct{}{}
+        }
+        var filteredFiles []os.DirEntry
+        for _, file := range files {
+            ext := strings.TrimPrefix(filepath.Ext(file.Name()), ".")
+            if _, found := extSet[ext]; found {
+                filteredFiles = append(filteredFiles, file)
+            }
+        }
+        files = filteredFiles
+    }
+
+    if len(files) == 0 {
+        fmt.Println("No files found.")
+        return
+    }
+
+    if !showHidden {
+        files = filterHidden(files)
+    }
+
+    if showOnlySymlinks {
+        files = filterSymlinks(files, directory)
+    }
+
+    if listDirsOnly {
+        files = filterDirectories(files)
+    } else if listFilesOnly {
+        files = filterNonDirectories(files)
+    } else if listHiddenOnly {
+        files = filterHiddenOnly(files)
+    }
+
+    if len(excludedExts) > 0 {
+        files = filterExcludedExtensions(files, excludedExts)
+    }
+
+    if orderBySize {
+        sort.Slice(files, func(i, j int) bool {
+            info1, _ := files[i].Info()
+            info2, _ := files[j].Info()
+            return info1.Size() < info2.Size()
+        })
+    }
+
+    if orderByTime {
+        sort.Slice(files, func(i, j int) bool {
+            info1, _ := files[i].Info()
+            info2, _ := files[j].Info()
+            return info1.ModTime().Before(info2.ModTime())
+        })
+    }
+
+    if recursiveListing {
+        printTree(directory, "", true, 0, maxDepth)
+    } else if longListing {
+        printLongListing(files, directory, humanReadable)
+    } else if fileSize {
+        getFileSize(files, directory, humanReadable, dirOnLeft)
+    } else {
+        printFilesInColumns(files, directory, dirOnLeft, showSummary)
+    }
+
+    if (hasSpecificFlags && !longListing) || !hasFlags {
+        fmt.Println()
+    }
+}
+
+func (f *fakeDirEntry) Name() string               { return f.info.Name() }
+func (f *fakeDirEntry) IsDir() bool                { return f.info.IsDir() }
+func (f *fakeDirEntry) Type() os.FileMode          { return f.info.Mode().Type() }
+func (f *fakeDirEntry) Info() (os.FileInfo, error) { return f.info, nil }
+
+func filterByExtension(files []os.DirEntry, extension string) []os.DirEntry {
+    var filtered []os.DirEntry
+    for _, file := range files {
+        if strings.TrimPrefix(filepath.Ext(file.Name()), ".") == extension {
+            filtered = append(filtered, file)
+        }
+    }
+    return filtered
+}
+
+func filterNonDirectories(files []os.DirEntry) []os.DirEntry {
+    var nonDirs []os.DirEntry
+    for _, file := range files {
+        if !file.IsDir() {
+            nonDirs = append(nonDirs, file)
+        }
+    }
+    return nonDirs
+}
+
+func filterDirectories(entries []os.DirEntry) []os.DirEntry {
+	var result []os.DirEntry
+	for _, entry := range entries {
+		if entry.IsDir() {
+			result = append(result, entry)
+		}
 	}
+	return result
+}
+
+func filterFiles(entries []os.DirEntry) []os.DirEntry {
+	var result []os.DirEntry
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			result = append(result, entry)
+		}
+	}
+	return result
+}
+
+func filterExcludedExtensions(files []os.DirEntry, excludedExts []string) []os.DirEntry {
+    var filteredFiles []os.DirEntry
+    for _, file := range files {
+        ext := strings.TrimPrefix(filepath.Ext(file.Name()), ".")
+        exclude := false
+        for _, excludedExt := range excludedExts {
+            if ext == excludedExt {
+                exclude = true
+                break
+            }
+        }
+        if !exclude {
+            filteredFiles = append(filteredFiles, file)
+        }
+    }
+    return filteredFiles
+}
+
+func filterHiddenOnly(files []os.DirEntry) []os.DirEntry {
+    var hiddenFiles []os.DirEntry
+    for _, file := range files {
+        if strings.HasPrefix(file.Name(), ".") {
+            hiddenFiles = append(hiddenFiles, file)
+        }
+    }
+    return hiddenFiles
+}
+
+func filterByExtensions(files []os.DirEntry, extensions []string) []os.DirEntry {
+    var filtered []os.DirEntry
+    extMap := make(map[string]struct{})
+    for _, ext := range extensions {
+        ext = strings.TrimPrefix(ext, ".")
+        extMap[ext] = struct{}{}
+    }
+    for _, file := range files {
+        ext := strings.TrimPrefix(filepath.Ext(file.Name()), ".")
+        if _, found := extMap[ext]; found {
+            filtered = append(filtered, file)
+        }
+    }
+    return filtered
 }
 
 func getTerminalWidth() (int, error) {
@@ -210,45 +315,57 @@ func getMaxNameLength(files []os.DirEntry) int {
     return maxLen
 }
 
-func printFilesInColumns(files []os.DirEntry, directory string, dirOnLeft bool, showSummary bool, oneColumn bool) {
-    terminalWidth, err := getTerminalWidth()
-    if err != nil {
-        fmt.Println("Error getting terminal width:", err)
-        return
-    }
-
-    maxFileNameLength := getMaxNameLength(files)
-    columnWidth := maxFileNameLength + 1
-
-    maxFilesInLine := terminalWidth / columnWidth
-
-    filesInLine := 0
+func printFilesInColumns(files []os.DirEntry, directory string, dirOnLeft bool, showSummary bool) {
     dirCount := 0
     fileCount := 0
 
-    for _, file := range files {
-        if file.IsDir() {
-            dirCount++
-            printFile(file, directory, maxFileNameLength, dirOnLeft)
-        } else {
-            fileCount++
-            printFile(file, directory, maxFileNameLength, dirOnLeft)
+    if oneColumn {
+        for _, file := range files {
+            if file.IsDir() {
+                dirCount++
+            } else {
+                fileCount++
+            }
+            printFile(file, directory, getMaxNameLength(files), dirOnLeft)
+            fmt.Println()
+        }
+    } else {
+        terminalWidth, err := getTerminalWidth()
+        if err != nil {
+            fmt.Println("Error getting terminal width:", err)
+            return
         }
 
-        filesInLine++
-        if filesInLine >= maxFilesInLine {
-            fmt.Println()
-            filesInLine = 0
-        } else {
-            printPadding(truncateName(file.Name(), maxFileNameLength), maxFileNameLength)
+        maxFileNameLength := getMaxNameLength(files)
+        columnWidth := maxFileNameLength + 1
+
+        maxFilesInLine := terminalWidth / columnWidth
+
+        filesInLine := 0
+
+        for _, file := range files {
+            if file.IsDir() {
+                dirCount++
+            } else {
+                fileCount++
+            }
+
+            printFile(file, directory, maxFileNameLength, dirOnLeft)
+
+            filesInLine++
+            if filesInLine >= maxFilesInLine {
+                fmt.Println()
+                filesInLine = 0
+            } else {
+                printPadding(truncateName(file.Name(), maxFileNameLength), maxFileNameLength)
+            }
         }
     }
 
     if showSummary {
         fmt.Println()
-        dirCount, fileCount := countFilesAndDirs(files)
-        fmt.Printf(iconDirectory + " Directories: %s%d%s\n", blue, dirCount, reset)
-        fmt.Printf(iconOther + " Files: %s%d%s\n", red, fileCount, reset)
+        fmt.Printf(iconDirectory+" Directories: %s%d%s\n", blue, dirCount, reset)
+        fmt.Printf(iconOther+" Files: %s%d%s\n", red, fileCount, reset)
     }
 }
 
@@ -293,94 +410,130 @@ func filterSymlinks(entries []os.DirEntry, dir string) []os.DirEntry {
 }
 
 func parseFlags(args []string) ([]string, bool, bool) {
-	var nonFlagArgs []string
-	hasFlags := false
-	hasSpecificFlags := false
+    var nonFlagArgs []string
+    hasFlags := false
+    hasSpecificFlags := false
 
-	for i := 0; i < len(args); i++ {
-		arg := args[i]
-		if len(arg) > 1 && arg[0] == '-' {
-			hasFlags = true
-			for j := 1; j < len(arg); j++ {
-				switch arg[j] {
-				case 'l':
-					longListing = true
-				case 'h':
-					humanReadable = true
-                    hasSpecificFlags = true
-				case 's':
-					fileSize = true
-				case 'o':
-					orderBySize = true
-					hasSpecificFlags = true
-				case 't':
-					orderByTime = true
-					hasSpecificFlags = true
-				case 'm':
-					showOnlySymlinks = true
-					hasSpecificFlags = true
-				case 'a':
-					showHidden = true
-					hasSpecificFlags = true
-                case 'A':
-                    listHiddenOnly = true
-                    showHidden = true
-                    hasSpecificFlags = true
-				case 'r':
-					recursiveListing = true
-				case 'i':
-					dirOnLeft = true
-					hasSpecificFlags = true
-                    hasFlags = true
-				case 'c':
-					oneColumn = true
-                    hasSpecificFlags = true
-				case 'f':
-					showSummary = true
-				case 'v':
-					showVersion = true
-                case 'D':
-                    listDirsOnly = true
-                    hasSpecificFlags = true
-                case 'F':
-                    listFilesOnly = true
-                    hasSpecificFlags = true
-				case 'd':
-					if j+1 < len(arg) && arg[j+1] >= '0' && arg[j+1] <= '9' {
-						depthValue := arg[j+1:]
-						maxDepthValue, err := strconv.Atoi(depthValue)
-						if err != nil {
-							fmt.Println("Invalid value for -d")
-							os.Exit(1)
-						}
-						maxDepth = maxDepthValue
-						hasSpecificFlags = true
-						break
-					} else if i+1 < len(args) {
-						depthValue := args[i+1]
-						maxDepthValue, err := strconv.Atoi(depthValue)
-						if err != nil {
-							fmt.Println("Invalid value for -d")
-							os.Exit(1)
-						}
-						maxDepth = maxDepthValue
-						hasSpecificFlags = true
-						i++
-						break
-					} else {
-						fmt.Println("Missing value for -d")
-						os.Exit(1)
-					}
-				default:
-					showHelp()
-					os.Exit(1)
-				}
-			}
-		} else {
-			nonFlagArgs = append(nonFlagArgs, arg)
-		}
-	}
-	return nonFlagArgs, hasFlags, hasSpecificFlags
+    for i := 0; i < len(args); i++ {
+        arg := args[i]
+
+        if len(arg) > 1 && arg[0] == '-' {
+            hasFlags = true
+            if len(arg) > 2 && arg[1] == '-' {
+                switch arg {
+                case "--version":
+                    showVersion = true
+                default:
+                    fmt.Println("Unknown long flag:", arg)
+                    showHelp()
+                    os.Exit(1)
+                }
+            } else {
+
+                for j := 1; j < len(arg); j++ {
+                    switch arg[j] {
+                    case 'l':
+                        longListing = true
+                    case 'c':
+                        oneColumn = true
+                    case 'h':
+                        humanReadable = true
+                        hasSpecificFlags = true
+                    case 's':
+                        fileSize = true
+                    case 'o':
+                        orderBySize = true
+                        hasSpecificFlags = true
+                    case 't':
+                        orderByTime = true
+                        hasSpecificFlags = true
+                    case 'm':
+                        showOnlySymlinks = true
+                        hasSpecificFlags = true
+                    case 'a':
+                        showHidden = true
+                        hasSpecificFlags = true
+                    case 'A':
+                        listHiddenOnly = true
+                        showHidden = true
+                        hasSpecificFlags = true
+                    case 'r':
+                        recursiveListing = true
+                    case 'i':
+                        dirOnLeft = true
+                        hasSpecificFlags = true
+                        hasFlags = true
+                    case 'f':
+                        showSummary = true
+                        hasSpecificFlags = true
+                    case 'v':
+                        showVersion = true
+                    case 'D':
+                        listDirsOnly = true
+                        hasSpecificFlags = true
+                    case 'F':
+                        listFilesOnly = true
+                        hasSpecificFlags = true
+                    case 'x':
+                        if j+1 < len(arg) && (arg[j+1] < '0' || arg[j+1] > '9') {
+                            excludedExts = strings.Split(arg[j+1:], ",")
+                            hasSpecificFlags = true
+                            break
+                        } else if i+1 < len(args) && args[i+1][0] != '-' {
+                            excludedExts = strings.Split(args[i+1], ",")
+                            hasSpecificFlags = true
+                            i++
+                            break
+                        } else {
+                            fmt.Println("Missing value for -x")
+                            os.Exit(1)
+                        }
+                    case 'd':
+                        if j+1 < len(arg) && arg[j+1] >= '0' && arg[j+1] <= '9' {
+                            depthValue := arg[j+1:]
+                            maxDepthValue, err := strconv.Atoi(depthValue)
+                            if err != nil {
+                                fmt.Println("Invalid value for -d")
+                                os.Exit(1)
+                            }
+                            maxDepth = maxDepthValue
+                            hasSpecificFlags = true
+                            break
+                        } else if i+1 < len(args) {
+                            depthValue := args[i+1]
+                            maxDepthValue, err := strconv.Atoi(depthValue)
+                            if err != nil {
+                                fmt.Println("Invalid value for -d")
+                                os.Exit(1)
+                            }
+                            maxDepth = maxDepthValue
+                            hasSpecificFlags = true
+                            i++
+                            break
+                        } else {
+                            fmt.Println("Missing value for -d")
+                            os.Exit(1)
+                        }
+                    case 'e':
+                        if i+1 < len(args) {
+                            extFlag = args[i+1]
+                            i++
+                            hasSpecificFlags = true
+                        } else {
+                            fmt.Println("Missing value for -e")
+                            os.Exit(1)
+                        }
+                    default:
+                        showHelp()
+                        os.Exit(1)
+                    }
+                }
+            }
+        } else {
+            nonFlagArgs = append(nonFlagArgs, arg)
+        }
+    }
+    return nonFlagArgs, hasFlags, hasSpecificFlags
 }
 
 func showHelp() {
@@ -392,8 +545,12 @@ func showHelp() {
 	fmt.Println("	-?        Help")
 	fmt.Println()
 	fmt.Println("	-a        Show Hidden files")
-	fmt.Println("	-c        Don't use spacing, print all files in one column")
+	fmt.Println("	-A        Show only hidden files and directories")
+	fmt.Println("	-e        Filter files based on extensions")
 	fmt.Println("	-f        Show summary of directories and files")
+	fmt.Println("	-F        List files only")
+	fmt.Println("	-c        Don't use spacing, print all files in one column")
+	fmt.Println("	-D        Only directories are showing")
 	fmt.Println("	-h        Human-readable file sizes")
 	fmt.Println("	-i        Show directory icon on left")
 	fmt.Println("	-l        Long listing format")
@@ -403,6 +560,7 @@ func showHelp() {
 	fmt.Println("	-s        Print files size")
 	fmt.Println("	-t        Order by time")
 	fmt.Println("	-v        Version")
+	fmt.Println("	-x        Exclude specific extensions")
 	fmt.Println()
 }
 
@@ -800,6 +958,8 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
 			return gray + icon + reset
 		case ".exe":
 			return brightCyan + icon + reset
+        case ".1":
+            return lightBrown + icon + reset
 		default:
 			return icon
 		}
@@ -816,6 +976,11 @@ func getFileNameAndExtension(file os.DirEntry) (string, string) {
 	ext := filepath.Ext(file.Name())
 	name := strings.TrimSuffix(file.Name(), ext)
 	return name, ext
+}
+
+func getSpecialFileIcon(fileName string) (string, bool) {
+	icon, found := specialFileIcons[fileName]
+	return icon, found
 }
 
 func printTree(path, prefix string, isLast bool, currentDepth, maxDepth int) {
@@ -864,29 +1029,4 @@ func printTree(path, prefix string, isLast bool, currentDepth, maxDepth int) {
 		fmt.Printf(iconDirectory + " Directories: %s%d%s\n", blue, dirCount, reset)
 		fmt.Printf(iconOther + " Files: %s%d%s\n", red, fileCount, reset)
 	}
-}
-
-func getSpecialFileIcon(fileName string) (string, bool) {
-	icon, found := specialFileIcons[fileName]
-	return icon, found
-}
-
-func filterDirectories(entries []os.DirEntry) []os.DirEntry {
-	var result []os.DirEntry
-	for _, entry := range entries {
-		if entry.IsDir() {
-			result = append(result, entry)
-		}
-	}
-	return result
-}
-
-func filterFiles(entries []os.DirEntry) []os.DirEntry {
-	var result []os.DirEntry
-	for _, entry := range entries {
-		if !entry.IsDir() {
-			result = append(result, entry)
-		}
-	}
-	return result
 }
