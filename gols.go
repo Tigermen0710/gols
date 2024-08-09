@@ -983,9 +983,9 @@ func getSpecialFileIcon(fileName string) (string, bool) {
 	return icon, found
 }
 
-func printTree(path, prefix string, isLast bool, currentDepth, maxDepth int) {
+func printTree(path, prefix string, isLast bool, currentDepth, maxDepth int) (totalFiles, totalDirs int) {
 	if maxDepth != -1 && currentDepth > maxDepth {
-		return
+		return 0, 0
 	}
 
 	files, err := os.ReadDir(path)
@@ -1019,14 +1019,19 @@ func printTree(path, prefix string, isLast bool, currentDepth, maxDepth int) {
 			} else {
 				newPrefix += "│   "
 			}
-			printTree(filepath.Join(path, file.Name()), newPrefix, isLastFile, currentDepth+1, maxDepth)
+			subFiles, subDirs := printTree(filepath.Join(path, file.Name()), newPrefix, isLastFile, currentDepth+1, maxDepth)
+			totalFiles += subFiles
+			totalDirs += subDirs + 1
+		} else {
+			totalFiles++
 		}
 	}
 
-	if showSummary && currentDepth == 0 {
+	if currentDepth == 0 && showSummary {
 		fmt.Println()
-		fileCount, dirCount := countFilesAndDirs(filteredFiles)
-		fmt.Printf(iconDirectory + " Directories: %s%d%s\n", blue, dirCount, reset)
-		fmt.Printf(iconOther + " Files: %s%d%s\n", red, fileCount, reset)
+		fmt.Printf(iconDirectory + " Directories: %s%d%s\n", blue, totalDirs, reset)
+		fmt.Printf(iconOther + " Files: %s%d%s\n", red, totalFiles, reset)
 	}
+
+	return totalFiles, totalDirs
 }
