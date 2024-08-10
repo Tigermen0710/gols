@@ -997,6 +997,9 @@ func printSummary(files []os.DirEntry, directory string) {
     if symlinkFileCount > 0 {
         fmt.Printf(iconSymlinkFile + " Symlinked Files: %s%d%s\n", cyan, symlinkFileCount, reset)
     }
+
+    total := dirCount + fileCount + symlinkDirCount + symlinkFileCount
+    fmt.Printf(iconTotal + ":%s%d%s\n", brightGreen, total, reset)
 }
 
 func printTree(path, prefix string, isLast bool, currentDepth, maxDepth int) (totalFiles, totalDirs int) {
