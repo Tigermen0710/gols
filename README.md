@@ -19,6 +19,20 @@ This program lists the files and directories in the current working directory wi
 - Exlude files using there extention ```gols -x go,txt ...```.
 - Use the extention to list files ```gols -e go``` to list golang files.
 
+## Table of Contents
+
+* [Installation](#Installation)
+    * [Dependencies](#Dependencies)
+    * [Using Git](#Clone)
+        * [Go](#Go)
+        * [Makefile](#Makefile)
+    * [AUR](#Arch)
+    * [XBPS-SRC](#Void)
+* [Usage](#Usage)
+    * [No Options](#No-Flags)
+    * [With Options](#Flags)
+* [Flags](#Flags)
+* [Contributing](#Contributing)
 
 ## Installation
 
@@ -28,6 +42,9 @@ This program lists the files and directories in the current working directory wi
 - **Nerd Fonts**: [Download Nerd Fonts](https://www.nerdfonts.com/font-downloads)
 
 ### Clone the repository
+
+#### Go
+
 ```bash
 git clone https://github.com/Tigermen0710/gols
 cd gols/
@@ -36,7 +53,7 @@ sudo cp gols /usr/local/bin/
 sudo cp gols.1 /usr/local/share/man/man1/ # To copy the man page.
 gols
 ```
-#### Or using the Makefile.
+#### Makefile
 
 ```bash
 git clone https://github.com/Tigermen0710/gols
@@ -48,26 +65,30 @@ gols
 
 #### Note: gols is in the [AUR](https://aur.archlinux.org/packages/gols) and a [template](https://github.com/elbachir-one/void-templates) for Void Linux (xbps-src).
 
-##### Arch Linux:
+##### Arch Linux
 ```bash
 yay -S gols
 ```
 
-##### Void Linux:
+##### Void Linux
 
 Assuming you have void-packages.
 ```bash
 git clone https://github.com/elbachir-one/void-templates
-cp void-templates/gols/ void-packages/srcpkgs/
+cp void-templates/gols/ void-packages/srcpkgs/ # Copying the gols directory that has the template.
 ./xbps-src pkg gols
 sudo xbps-install -R hostdir/binpkgs gols
 ```
 
 ## Usage
+
+#### No-Flags
+
 ```bash
 gols
 ```
-Or
+#### Flags
+
 ```bash
 gols [FLAG] [DIRECTORY] [FILES]
 ```
@@ -93,3 +114,7 @@ gols [FLAG] [DIRECTORY] [FILES]
 | -t   | order all by time                                            | ![image](https://github.com/user-attachments/assets/7037b518-c08a-464c-847e-486966bfa7ff)       |
 | -v   | version number                                               |                                                                                                 |
 | -x   | exclude files from the listing using there extention         | ![image](https://i.postimg.cc/90Cy41m1/x.png)                                                   |
+
+## Contributing
+
+We always appreciate your contributions, problems, and feature suggestions. Your feedback is much appreciated, whether you're reporting bugs, proposing new features, or sharing your own enhancements. We value the time and work you invested in assisting us in improving this project.
