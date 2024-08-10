@@ -65,12 +65,12 @@ gols
 
 #### Note: gols is in the [AUR](https://aur.archlinux.org/packages/gols) and a [template](https://github.com/elbachir-one/void-templates) for Void Linux (xbps-src).
 
-##### Arch Linux
+##### Arch
 ```bash
 yay -S gols
 ```
 
-##### Void Linux
+##### Void
 
 Assuming you have void-packages.
 ```bash
