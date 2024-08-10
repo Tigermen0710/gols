@@ -892,58 +892,62 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
         switch ext {
         case ".go":
             return cyan + icon + reset
-        case ".sh":
+        case ".sh", ".ps1":
             if mode&os.ModePerm&0111 != 0 {
                 return brightGreen + icon + reset
             } else {
                 return white + icon + reset
             }
-        case ".cpp", ".hpp", ".cxx", ".hxx":
+        case ".cpp", ".hpp", ".cxx", ".hxx", ".dart", ".gd", ".v":
             return blue + icon + reset
-        case ".css":
+        case ".css", ".ml", ".rst", ".nix":
             return lightBlue + icon + reset
-        case ".c", ".h", ".mp3", ".m4a", ".ogg", ".flac", ".php", ".lua", ".sql":
+        case ".c", ".h", ".mp3", ".m4a", ".ogg", ".flac", ".php", ".lua", ".sql", ".m":
             return brightBlue + icon + reset
-        case ".cs", ".mp4", ".mkv", ".webm", ".org":
-            return darkMagenta + icon + reset
-        case ".png", ".jpg", ".jpeg", ".JPG", ".webp":
+        case ".png", ".jpg", ".jpeg", ".JPG", ".webp", ".R", ".ts", ".bmp":
             return darkBlue + icon + reset
-        case ".gif", ".xcf", ".el":
-            return magenta + icon + reset
+        case ".md", ".epub", ".obj":
+            return cyan + icon + reset
         case ".xml":
             return lightCyan + icon + reset
-        case ".htm", ".html", ".java", ".jar", ".git", ".ps", ".eps":
-            return orange + icon + reset
-        case ".txt", ".app":
-            return white + icon + reset
-        case ".zip", ".tar", ".gz", ".bz2", ".xz", ".7z", ".svg":
-            return lightPurple + icon + reset
-        case ".js":
+        case ".exe", ".desktop", ".mk":
+            return brightCyan + icon + reset
+        case ".gif", ".xcf", ".el", ".lisp":
+            return magenta + icon + reset
+        case ".cs", ".mp4", ".mkv", ".webm", ".org", ".ejs":
+            return darkMagenta + icon + reset
+        case ".js", ".lock":
             return yellow + icon + reset
-        case ".json", ".tiff":
+        case ".json", ".tiff", ".nim":
             return brightYellow + icon + reset
-        case ".py":
+        case ".patch", ".diff", ".py":
             return darkYellow + icon + reset
         case ".yml", ".yaml", ".pdf", ".db":
             return brightRed + icon + reset
-        case ".toml", ".zig":
-            return darkOrange + icon + reset
         case ".deb":
             return lightRed + icon + reset
-        case ".md", ".epub":
-            return cyan + icon + reset
-        case ".rb", ".cmake", ".pl":
+        case ".rb", ".cmake", ".pl", ".scala", ".erl", ".build":
             return red + icon + reset
-        case ".xbps", ".vim":
+        case ".htm", ".html", ".java", ".jar", ".git", ".ps", ".eps", ".swift":
+            return orange + icon + reset
+        case ".toml", ".zig":
+            return darkOrange + icon + reset
+        case ".tmux.conf":
+            return green + icon + reset
+        case ".xbps", ".vim", ".jai":
             return darkGreen + icon + reset
+        case ".iso", ".asm", ".f90", ".groovy", ".ini", ".cfg":
+            return gray + icon + reset
         case ".conf", ".bat", ".rs":
             return darkGray + icon + reset
-        case ".iso":
-            return gray + icon + reset
-        case ".exe":
-            return brightCyan + icon + reset
-        case ".1":
+        case ".fish", ".o", ".m4":
+            return lightGray + icon + reset
+        case ".1", ".hs":
             return lightBrown + icon + reset
+        case ".txt", ".app":
+            return white + icon + reset
+        case ".zip", ".tar", ".gz", ".bz2", ".xz", ".7z", ".svg", ".kt", ".ex", ".zst":
+            return lightPurple + icon + reset
         default:
             return icon
         }
