@@ -1,20 +1,20 @@
 package main
 
 import (
-	"fmt"
-	"log"
-	"os"
-	"os/user"
-	"path/filepath"
-	"sort"
-	"strconv"
-	"strings"
+    "fmt"
+    "log"
+    "os"
+    "os/user"
+    "path/filepath"
+    "sort"
+    "strconv"
+    "strings"
     "syscall"
     "unsafe"
 )
 
 const (
-	version = "gols: 1.4.2"
+    version = "gols: 1.4.2"
 )
 
 var (
@@ -65,7 +65,7 @@ func main() {
     if len(nonFlagArgs) > 0 {
         directory = nonFlagArgs[0]
     }
-    
+
     if len(nonFlagArgs) > 1 {
         fileExtensions = strings.Split(nonFlagArgs[1], ",")
     } else if extFlag != "" {
@@ -193,23 +193,23 @@ func filterNonDirectories(files []os.DirEntry) []os.DirEntry {
 }
 
 func filterDirectories(entries []os.DirEntry) []os.DirEntry {
-	var result []os.DirEntry
-	for _, entry := range entries {
-		if entry.IsDir() {
-			result = append(result, entry)
-		}
-	}
-	return result
+    var result []os.DirEntry
+    for _, entry := range entries {
+        if entry.IsDir() {
+            result = append(result, entry)
+        }
+    }
+    return result
 }
 
 func filterFiles(entries []os.DirEntry) []os.DirEntry {
-	var result []os.DirEntry
-	for _, entry := range entries {
-		if !entry.IsDir() {
-			result = append(result, entry)
-		}
-	}
-	return result
+    var result []os.DirEntry
+    for _, entry := range entries {
+        if !entry.IsDir() {
+            result = append(result, entry)
+        }
+    }
+    return result
 }
 
 func filterExcludedExtensions(files []os.DirEntry, excludedExts []string) []os.DirEntry {
@@ -356,43 +356,43 @@ func printFilesInColumns(files []os.DirEntry, directory string, dirOnLeft bool, 
 }
 
 func listFilesWithExtension(dir string, ext string) ([]os.DirEntry, error) {
-	var result []os.DirEntry
+    var result []os.DirEntry
 
-	entries, err := os.ReadDir(dir)
-	if err != nil {
-		return nil, err
-	}
+    entries, err := os.ReadDir(dir)
+    if err != nil {
+        return nil, err
+    }
 
-	for _, entry := range entries {
-		if entry.IsDir() {
-			continue
-		}
-		if strings.HasSuffix(entry.Name(), "."+ext) {
-			result = append(result, entry)
-		}
-	}
-	return result, nil
+    for _, entry := range entries {
+        if entry.IsDir() {
+            continue
+        }
+        if strings.HasSuffix(entry.Name(), "."+ext) {
+            result = append(result, entry)
+        }
+    }
+    return result, nil
 }
 
 func filterHidden(entries []os.DirEntry) []os.DirEntry {
-	var result []os.DirEntry
-	for _, entry := range entries {
-		if !strings.HasPrefix(entry.Name(), ".") {
-			result = append(result, entry)
-		}
-	}
-	return result
+    var result []os.DirEntry
+    for _, entry := range entries {
+        if !strings.HasPrefix(entry.Name(), ".") {
+            result = append(result, entry)
+        }
+    }
+    return result
 }
 
 func filterSymlinks(entries []os.DirEntry, dir string) []os.DirEntry {
-	var result []os.DirEntry
-	for _, entry := range entries {
-		fullPath := filepath.Join(dir, entry.Name())
-		if info, err := os.Lstat(fullPath); err == nil && info.Mode()&os.ModeSymlink != 0 {
-			result = append(result, entry)
-		}
-	}
-	return result
+    var result []os.DirEntry
+    for _, entry := range entries {
+        fullPath := filepath.Join(dir, entry.Name())
+        if info, err := os.Lstat(fullPath); err == nil && info.Mode()&os.ModeSymlink != 0 {
+            result = append(result, entry)
+        }
+    }
+    return result
 }
 
 func parseFlags(args []string) ([]string, bool, bool) {
@@ -523,480 +523,480 @@ func parseFlags(args []string) ([]string, bool, bool) {
 }
 
 func showHelp() {
-	fmt.Println()
-	fmt.Println("Usage: gols [FLAG] [DIRECTORY] [FILES]")
-	fmt.Println()
-	fmt.Println("FLAGS:")
-	fmt.Println()
-	fmt.Println("	-?        Help")
-	fmt.Println()
-	fmt.Println("	-a        Show Hidden files")
-	fmt.Println("	-A        Show only hidden files and directories")
-	fmt.Println("	-e        Filter files based on extensions")
-	fmt.Println("	-f        Show summary of directories and files")
-	fmt.Println("	-F        List files only")
-	fmt.Println("	-c        Don't use spacing, print all files in one column")
-	fmt.Println("	-D        Only directories are showing")
-	fmt.Println("	-h        Human-readable file sizes")
-	fmt.Println("	-i        Show directory icon on left")
-	fmt.Println("	-l        Long listing format")
-	fmt.Println("	-m        Only symbolic links are showing")
-	fmt.Println("	-o        Sort by size")
-	fmt.Println("	-r d n    Tree like listing, set the depth of the directory tree (n is an integer)")
-	fmt.Println("	-s        Print files size")
-	fmt.Println("	-t        Order by time")
-	fmt.Println("	-v        Version")
-	fmt.Println("	-x        Exclude specific extensions")
-	fmt.Println()
+    fmt.Println()
+    fmt.Println("Usage: gols [FLAG] [DIRECTORY] [FILES]")
+    fmt.Println()
+    fmt.Println("FLAGS:")
+    fmt.Println()
+    fmt.Println("	-?        Help")
+    fmt.Println()
+    fmt.Println("	-a        Show Hidden files")
+    fmt.Println("	-A        Show only hidden files and directories")
+    fmt.Println("	-e        Filter files based on extensions")
+    fmt.Println("	-f        Show summary of directories and files")
+    fmt.Println("	-F        List files only")
+    fmt.Println("	-c        Don't use spacing, print all files in one column")
+    fmt.Println("	-D        Only directories are showing")
+    fmt.Println("	-h        Human-readable file sizes")
+    fmt.Println("	-i        Show directory icon on left")
+    fmt.Println("	-l        Long listing format")
+    fmt.Println("	-m        Only symbolic links are showing")
+    fmt.Println("	-o        Sort by size")
+    fmt.Println("	-r d n    Tree like listing, set the depth of the directory tree (n is an integer)")
+    fmt.Println("	-s        Print files size")
+    fmt.Println("	-t        Order by time")
+    fmt.Println("	-v        Version")
+    fmt.Println("	-x        Exclude specific extensions")
+    fmt.Println()
 }
 
 func getFileSize(files []os.DirEntry, directory string, humanReadable, dirOnLeft bool) {
-	const sizeFieldWidth = 10
-	const spaceBetweenSizeAndIcon = 2
+    const sizeFieldWidth = 10
+    const spaceBetweenSizeAndIcon = 2
 
-	for _, file := range files {
-		info, err := file.Info()
-		if err != nil {
-			log.Fatal(err)
-		}
+    for _, file := range files {
+        info, err := file.Info()
+        if err != nil {
+            log.Fatal(err)
+        }
 
-		size := info.Size()
-		sizeStr := formatSize(size, humanReadable)
+        size := info.Size()
+        sizeStr := formatSize(size, humanReadable)
 
-		sizeStr = fmt.Sprintf("%*s", sizeFieldWidth, sizeStr)
+        sizeStr = fmt.Sprintf("%*s", sizeFieldWidth, sizeStr)
 
-		fmt.Print(sizeStr)
-		for i := 0; i < spaceBetweenSizeAndIcon; i++ {
-			fmt.Print(" ")
-		}
+        fmt.Print(sizeStr)
+        for i := 0; i < spaceBetweenSizeAndIcon; i++ {
+            fmt.Print(" ")
+        }
 
-		if file.IsDir() {
-			if dirOnLeft {
-				fmt.Println(iconDirectory + " " + blue + file.Name() + reset)
-			} else {
-				fmt.Println(blue + file.Name() + " " + iconDirectory + " " + reset)
-			}
-		} else {
-			fmt.Println(getFileIcon(file, info.Mode(), directory) + " " + file.Name())
-		}
-	}
+        if file.IsDir() {
+            if dirOnLeft {
+                fmt.Println(iconDirectory + " " + blue + file.Name() + reset)
+            } else {
+                fmt.Println(blue + file.Name() + " " + iconDirectory + " " + reset)
+            }
+        } else {
+            fmt.Println(getFileIcon(file, info.Mode(), directory) + " " + file.Name())
+        }
+    }
 
-	if showSummary {
+    if showSummary {
         fmt.Println()
         printSummary(files, directory)
-	}
+    }
 }
 
 func padRight(str string, length int) string {
-	for len(str) < length {
-		str += " "
-	}
-	return str
+    for len(str) < length {
+        str += " "
+    }
+    return str
 }
 
 func formatSize(size int64, humanReadable bool) string {
-	const (
-		_  = iota
-		KB = 1 << (10 * iota)
-		MB
-		GB
-		TB
-	)
+    const (
+        _  = iota
+        KB = 1 << (10 * iota)
+        MB
+        GB
+        TB
+    )
 
-	if humanReadable {
-		switch {
-		case size >= TB:
-			return fmt.Sprintf("%.2f TB", float64(size)/float64(TB))
-		case size >= GB:
-			return fmt.Sprintf("%.2f GB", float64(size)/float64(GB))
-		case size >= MB:
-			return fmt.Sprintf("%.2f MB", float64(size)/float64(MB))
-		case size >= KB:
-			return fmt.Sprintf("%.2f KB", float64(size)/float64(KB))
-		default:
-			return fmt.Sprintf("%d B", size)
-		}
-	} else {
-		switch {
-		case size >= TB:
-			return fmt.Sprintf("%d TB", size)
-		case size >= GB:
-			return fmt.Sprintf("%d GB", size)
-		case size >= MB:
-			return fmt.Sprintf("%d MB", size)
-		case size >= KB:
-			return fmt.Sprintf("%d KB", size)
-		default:
-			return fmt.Sprintf("%d B", size)
-		}
-	}
+    if humanReadable {
+        switch {
+        case size >= TB:
+            return fmt.Sprintf("%.2f TB", float64(size)/float64(TB))
+        case size >= GB:
+            return fmt.Sprintf("%.2f GB", float64(size)/float64(GB))
+        case size >= MB:
+            return fmt.Sprintf("%.2f MB", float64(size)/float64(MB))
+        case size >= KB:
+            return fmt.Sprintf("%.2f KB", float64(size)/float64(KB))
+        default:
+            return fmt.Sprintf("%d B", size)
+        }
+    } else {
+        switch {
+        case size >= TB:
+            return fmt.Sprintf("%d TB", size)
+        case size >= GB:
+            return fmt.Sprintf("%d GB", size)
+        case size >= MB:
+            return fmt.Sprintf("%d MB", size)
+        case size >= KB:
+            return fmt.Sprintf("%d KB", size)
+        default:
+            return fmt.Sprintf("%d B", size)
+        }
+    }
 }
 
 func printLongListing(files []os.DirEntry, directory string, humanReadable bool) {
-	maxLen := map[string]int{
-		"permissions": 0,
-		"size":        0,
-		"owner":       0,
-		"group":       0,
-		"month":       0,
-		"day":         0,
-		"time":        0,
-		"linkTarget":  0,
-	}
+    maxLen := map[string]int{
+        "permissions": 0,
+        "size":        0,
+        "owner":       0,
+        "group":       0,
+        "month":       0,
+        "day":         0,
+        "time":        0,
+        "linkTarget":  0,
+    }
 
-	var filteredFiles []os.DirEntry
-	for _, file := range files {
-		info, err := file.Info()
-		if err != nil {
-			log.Fatal(err)
-		}
+    var filteredFiles []os.DirEntry
+    for _, file := range files {
+        info, err := file.Info()
+        if err != nil {
+            log.Fatal(err)
+        }
 
-		permissions := formatPermissions(file, info.Mode(), directory)
-		size := info.Size()
-		sizeStr := formatSize(size, humanReadable)
-		owner, err := user.LookupId(fmt.Sprintf("%d", info.Sys().(*syscall.Stat_t).Uid))
-		if err != nil {
-			log.Fatal(err)
-		}
-		group, err := user.LookupGroupId(fmt.Sprintf("%d", info.Sys().(*syscall.Stat_t).Gid))
-		if err != nil {
-			log.Fatal(err)
-		}
-		modTime := info.ModTime()
-		month := modTime.Format("Jan")
-		day := fmt.Sprintf("%2d", modTime.Day())
-		timeStr := modTime.Format("15:04:05 2006")
+        permissions := formatPermissions(file, info.Mode(), directory)
+        size := info.Size()
+        sizeStr := formatSize(size, humanReadable)
+        owner, err := user.LookupId(fmt.Sprintf("%d", info.Sys().(*syscall.Stat_t).Uid))
+        if err != nil {
+            log.Fatal(err)
+        }
+        group, err := user.LookupGroupId(fmt.Sprintf("%d", info.Sys().(*syscall.Stat_t).Gid))
+        if err != nil {
+            log.Fatal(err)
+        }
+        modTime := info.ModTime()
+        month := modTime.Format("Jan")
+        day := fmt.Sprintf("%2d", modTime.Day())
+        timeStr := modTime.Format("15:04:05 2006")
 
-		maxLen["permissions"] = max(maxLen["permissions"], len(permissions))
-		maxLen["size"] = max(maxLen["size"], len(sizeStr))
-		maxLen["owner"] = max(maxLen["owner"], len(owner.Username))
-		maxLen["group"] = max(maxLen["group"], len(group.Name))
-		maxLen["month"] = max(maxLen["month"], len(month))
-		maxLen["day"] = max(maxLen["day"], len(day))
-		maxLen["time"] = max(maxLen["time"], len(timeStr))
+        maxLen["permissions"] = max(maxLen["permissions"], len(permissions))
+        maxLen["size"] = max(maxLen["size"], len(sizeStr))
+        maxLen["owner"] = max(maxLen["owner"], len(owner.Username))
+        maxLen["group"] = max(maxLen["group"], len(group.Name))
+        maxLen["month"] = max(maxLen["month"], len(month))
+        maxLen["day"] = max(maxLen["day"], len(day))
+        maxLen["time"] = max(maxLen["time"], len(timeStr))
 
-		if file.Type()&os.ModeSymlink != 0 {
-			linkTarget, err := os.Readlink(filepath.Join(directory, file.Name()))
-			if err == nil {
-				maxLen["linkTarget"] = max(maxLen["linkTarget"], len(linkTarget)+5)
-			}
-		}
+        if file.Type()&os.ModeSymlink != 0 {
+            linkTarget, err := os.Readlink(filepath.Join(directory, file.Name()))
+            if err == nil {
+                maxLen["linkTarget"] = max(maxLen["linkTarget"], len(linkTarget)+5)
+            }
+        }
 
-		filteredFiles = append(filteredFiles, file)
-	}
+        filteredFiles = append(filteredFiles, file)
+    }
 
-	for _, file := range filteredFiles {
-		info, err := file.Info()
-		if err != nil {
-			log.Fatal(err)
-		}
+    for _, file := range filteredFiles {
+        info, err := file.Info()
+        if err != nil {
+            log.Fatal(err)
+        }
 
-		permissions := formatPermissions(file, info.Mode(), directory)
-		size := info.Size()
-		sizeStr := formatSize(size, humanReadable)
-		owner, err := user.LookupId(fmt.Sprintf("%d", info.Sys().(*syscall.Stat_t).Uid))
-		if err != nil {
-			log.Fatal(err)
-		}
-		group, err := user.LookupGroupId(fmt.Sprintf("%d", info.Sys().(*syscall.Stat_t).Gid))
-		if err != nil {
-			log.Fatal(err)
-		}
-		modTime := info.ModTime()
-		month := modTime.Format("Jan")
-		day := fmt.Sprintf("%2d", modTime.Day())
-		timeStr := modTime.Format("15:04:05 2006")
+        permissions := formatPermissions(file, info.Mode(), directory)
+        size := info.Size()
+        sizeStr := formatSize(size, humanReadable)
+        owner, err := user.LookupId(fmt.Sprintf("%d", info.Sys().(*syscall.Stat_t).Uid))
+        if err != nil {
+            log.Fatal(err)
+        }
+        group, err := user.LookupGroupId(fmt.Sprintf("%d", info.Sys().(*syscall.Stat_t).Gid))
+        if err != nil {
+            log.Fatal(err)
+        }
+        modTime := info.ModTime()
+        month := modTime.Format("Jan")
+        day := fmt.Sprintf("%2d", modTime.Day())
+        timeStr := modTime.Format("15:04:05 2006")
 
-		permissions = green + permissions + reset
-		sizeStr = fmt.Sprintf("%*s", maxLen["size"], sizeStr)
-		ownerStr := cyan + owner.Username + reset
-		groupStr := brightBlue + group.Name + reset
-		monthStr := magenta + month + reset
-		dayStr := magenta + day + reset
-		timeStr = magenta + timeStr + reset
+        permissions = green + permissions + reset
+        sizeStr = fmt.Sprintf("%*s", maxLen["size"], sizeStr)
+        ownerStr := cyan + owner.Username + reset
+        groupStr := brightBlue + group.Name + reset
+        monthStr := magenta + month + reset
+        dayStr := magenta + day + reset
+        timeStr = magenta + timeStr + reset
 
-		line := fmt.Sprintf(
-			"%-*s  %s  %-*s  %-*s %-*s %-*s %-*s %s %s",
-			maxLen["permissions"], permissions,
-			sizeStr,
-			maxLen["owner"], ownerStr,
-			maxLen["group"], groupStr,
-			maxLen["month"], monthStr,
-			maxLen["day"], dayStr,
-			maxLen["time"], timeStr,
-			getFileIcon(file, info.Mode(), directory), file.Name(),
-		)
+        line := fmt.Sprintf(
+            "%-*s  %s  %-*s  %-*s %-*s %-*s %-*s %s %s",
+            maxLen["permissions"], permissions,
+            sizeStr,
+            maxLen["owner"], ownerStr,
+            maxLen["group"], groupStr,
+            maxLen["month"], monthStr,
+            maxLen["day"], dayStr,
+            maxLen["time"], timeStr,
+            getFileIcon(file, info.Mode(), directory), file.Name(),
+        )
 
-		if file.Type()&os.ModeSymlink != 0 {
-			linkTarget, err := os.Readlink(filepath.Join(directory, file.Name()))
-			if err == nil {
-				line += fmt.Sprintf(" %s==> %s%s", cyan, linkTarget, reset)
-			}
-		}
+        if file.Type()&os.ModeSymlink != 0 {
+            linkTarget, err := os.Readlink(filepath.Join(directory, file.Name()))
+            if err == nil {
+                line += fmt.Sprintf(" %s==> %s%s", cyan, linkTarget, reset)
+            }
+        }
 
-		fmt.Println(line)
-	}
+        fmt.Println(line)
+    }
 
     if showSummary {
         fmt.Println()
         printSummary(filteredFiles, directory)
-	}
+    }
 }
 
 func countFilesAndDirs(files []os.DirEntry) (int, int) {
-	fileCount := 0
-	dirCount := 0
-	for _, file := range files {
-		if file.IsDir() {
-			dirCount++
-		} else {
-			fileCount++
-		}
-	}
-	return fileCount, dirCount
+    fileCount := 0
+    dirCount := 0
+    for _, file := range files {
+        if file.IsDir() {
+            dirCount++
+        } else {
+            fileCount++
+        }
+    }
+    return fileCount, dirCount
 }
 
 func colorize(char byte) string {
-	switch char {
-	case 'r':
-		return reset + magenta + string(char) + reset
-	case 'w':
-		return lightGreen + string(char) + reset
-	case 'x':
-		return reset + red + string(char) + reset
-	case 'd':
-		return blue + string(char) + reset
-	case 'l':
-		return brightCyan + string(char) + reset
-	case '-':
-		return reset + lightWhite + string(char) + reset
-	default:
-		return string(char)
-	}
+    switch char {
+    case 'r':
+        return reset + magenta + string(char) + reset
+    case 'w':
+        return lightGreen + string(char) + reset
+    case 'x':
+        return reset + red + string(char) + reset
+    case 'd':
+        return blue + string(char) + reset
+    case 'l':
+        return brightCyan + string(char) + reset
+    case '-':
+        return reset + lightWhite + string(char) + reset
+    default:
+        return string(char)
+    }
 }
 
 func formatPermissions(file os.DirEntry, mode os.FileMode, directory string) string {
-	perms := make([]byte, 10)
-	for i := range perms {
-		perms[i] = '-'
-	}
+    perms := make([]byte, 10)
+    for i := range perms {
+        perms[i] = '-'
+    }
 
-	if file.Type()&os.ModeSymlink != 0 {
-		linkTarget, err := os.Readlink(filepath.Join(directory, file.Name()))
-		if err == nil {
-			symlinkTarget := filepath.Join(directory, linkTarget)
-			targetInfo, err := os.Stat(symlinkTarget)
-			if err == nil && targetInfo.IsDir() {
-				perms[0] = 'l'
-				perms[1] = 'd'
-			} else {
-				perms[0] = 'l'
-			}
-		}
-	} else if mode.IsDir() {
-		perms[0] = 'd'
-	}
+    if file.Type()&os.ModeSymlink != 0 {
+        linkTarget, err := os.Readlink(filepath.Join(directory, file.Name()))
+        if err == nil {
+            symlinkTarget := filepath.Join(directory, linkTarget)
+            targetInfo, err := os.Stat(symlinkTarget)
+            if err == nil && targetInfo.IsDir() {
+                perms[0] = 'l'
+                perms[1] = 'd'
+            } else {
+                perms[0] = 'l'
+            }
+        }
+    } else if mode.IsDir() {
+        perms[0] = 'd'
+    }
 
-	for i, s := range []struct {
-		bit  os.FileMode
-		char byte
-	}{
-		{0400, 'r'}, {0200, 'w'}, {0100, 'x'},
-		{0040, 'r'}, {0020, 'w'}, {0010, 'x'},
-		{0004, 'r'}, {0002, 'w'}, {0001, 'x'},
-	} {
-		if mode&s.bit != 0 {
-			perms[i+1] = s.char
-		}
-	}
+    for i, s := range []struct {
+        bit  os.FileMode
+        char byte
+    }{
+        {0400, 'r'}, {0200, 'w'}, {0100, 'x'},
+        {0040, 'r'}, {0020, 'w'}, {0010, 'x'},
+        {0004, 'r'}, {0002, 'w'}, {0001, 'x'},
+    } {
+        if mode&s.bit != 0 {
+            perms[i+1] = s.char
+        }
+    }
 
-	coloredPerms := ""
-	for _, perm := range perms {
-		coloredPerms += colorize(perm)
-	}
+    coloredPerms := ""
+    for _, perm := range perms {
+        coloredPerms += colorize(perm)
+    }
 
-	return coloredPerms
+    return coloredPerms
 }
 
 func rwx(perm os.FileMode) string {
-	var b strings.Builder
+    var b strings.Builder
 
-	if perm&0400 != 0 {
-		b.WriteString(magenta + "r" + reset)
-	} else {
-		b.WriteString(orange + "-" + reset)
-	}
-	if perm&0200 != 0 {
-		b.WriteString(green + "w" + reset)
-	} else {
-		b.WriteString(orange + "-" + reset)
-	}
-	if perm&0100 != 0 {
-		if perm&os.ModeSetuid != 0 {
-			b.WriteString(red + "s" + reset)
-		} else {
-			b.WriteString(red + "x" + reset)
-		}
-	} else {
-		if perm&os.ModeSetuid != 0 {
-			b.WriteString(red + "S" + reset)
-		} else {
-			b.WriteString(orange + "-" + reset)
-		}
-	}
+    if perm&0400 != 0 {
+        b.WriteString(magenta + "r" + reset)
+    } else {
+        b.WriteString(orange + "-" + reset)
+    }
+    if perm&0200 != 0 {
+        b.WriteString(green + "w" + reset)
+    } else {
+        b.WriteString(orange + "-" + reset)
+    }
+    if perm&0100 != 0 {
+        if perm&os.ModeSetuid != 0 {
+            b.WriteString(red + "s" + reset)
+        } else {
+            b.WriteString(red + "x" + reset)
+        }
+    } else {
+        if perm&os.ModeSetuid != 0 {
+            b.WriteString(red + "S" + reset)
+        } else {
+            b.WriteString(orange + "-" + reset)
+        }
+    }
 
-	return b.String()
+    return b.String()
 }
 
 func printEntry(file os.DirEntry, mode os.FileMode, directory string) {
-	perms := formatPermissions(file, mode, directory)
-	name := file.Name()
-	fmt.Printf("%s %s\n", perms, name)
+    perms := formatPermissions(file, mode, directory)
+    name := file.Name()
+    fmt.Printf("%s %s\n", perms, name)
 }
 
 func getDirectoryIcon(directory string) string {
-	for dirType, icon := range directoryIcons {
-		if filepath.Base(directory) == dirType {
-			return icon
-		}
-	}
-	return directoryIcons["default"]
+    for dirType, icon := range directoryIcons {
+        if filepath.Base(directory) == dirType {
+            return icon
+        }
+    }
+    return directoryIcons["default"]
 }
 
 func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
-	if file.Type()&os.ModeSymlink != 0 {
-		linkTarget, err := os.Readlink(filepath.Join(directory, file.Name()))
-		if err == nil {
-			symlinkTarget := filepath.Join(directory, linkTarget)
-			targetInfo, err := os.Stat(symlinkTarget)
-			if err == nil && targetInfo.IsDir() {
-				return iconSymlinkDir
-			} else {
-				return iconSymlinkFile
-			}
-		}
-	}
+    if file.Type()&os.ModeSymlink != 0 {
+        linkTarget, err := os.Readlink(filepath.Join(directory, file.Name()))
+        if err == nil {
+            symlinkTarget := filepath.Join(directory, linkTarget)
+            targetInfo, err := os.Stat(symlinkTarget)
+            if err == nil && targetInfo.IsDir() {
+                return iconSymlinkDir
+            } else {
+                return iconSymlinkFile
+            }
+        }
+    }
 
-	if mode.IsDir() {
-		icon := getDirectoryIcon(file.Name())
-		return blue + icon + " " + reset
-	}
+    if mode.IsDir() {
+        icon := getDirectoryIcon(file.Name())
+        return blue + icon + " " + reset
+    }
 
     if icon, found := getSpecialFileIcon(file.Name()); found {
-		return icon
-	}
+        return icon
+    }
 
-	ext := filepath.Ext(file.Name())
-	icon, exists := fileIcons[ext]
-	if exists {
-		switch ext {
-		case ".go":
-			return cyan + icon + reset
-		case ".sh":
-			if mode&os.ModePerm&0111 != 0 {
-				return brightGreen + icon + reset
-			} else {
-				return white + icon + reset
-			}
-		case ".cpp", ".hpp", ".cxx", ".hxx":
-			return blue + icon + reset
-		case ".css":
-			return lightBlue + icon + reset
-		case ".c", ".h", ".mp3", ".m4a", ".ogg", ".flac", ".php", ".lua", ".sql":
-			return brightBlue + icon + reset
-		case ".cs", ".mp4", ".mkv", ".webm", ".org":
-			return darkMagenta + icon + reset
-		case ".png", ".jpg", ".jpeg", ".JPG", ".webp":
-			return darkBlue + icon + reset
-		case ".gif", ".xcf", ".el":
-			return magenta + icon + reset
-		case ".xml":
-			return lightCyan + icon + reset
-		case ".htm", ".html", ".java", ".jar", ".git", ".ps", ".eps":
-			return orange + icon + reset
-		case ".txt", ".app":
-			return white + icon + reset
-		case ".zip", ".tar", ".gz", ".bz2", ".xz", ".7z", ".svg":
-			return lightPurple + icon + reset
-		case ".js":
-			return yellow + icon + reset
-		case ".json", ".tiff":
-			return brightYellow + icon + reset
-		case ".py":
-			return darkYellow + icon + reset
-		case ".yml", ".yaml", ".pdf", ".db":
-			return brightRed + icon + reset
-		case ".toml", ".zig":
-			return darkOrange + icon + reset
-		case ".deb":
-			return lightRed + icon + reset
-		case ".md", ".epub":
-			return cyan + icon + reset
-		case ".rb", ".cmake", ".pl":
-			return red + icon + reset
-		case ".xbps", ".vim":
-			return darkGreen + icon + reset
-		case ".conf", ".bat", ".rs":
-			return darkGray + icon + reset
-		case ".iso":
-			return gray + icon + reset
-		case ".exe":
-			return brightCyan + icon + reset
+    ext := filepath.Ext(file.Name())
+    icon, exists := fileIcons[ext]
+    if exists {
+        switch ext {
+        case ".go":
+            return cyan + icon + reset
+        case ".sh":
+            if mode&os.ModePerm&0111 != 0 {
+                return brightGreen + icon + reset
+            } else {
+                return white + icon + reset
+            }
+        case ".cpp", ".hpp", ".cxx", ".hxx":
+            return blue + icon + reset
+        case ".css":
+            return lightBlue + icon + reset
+        case ".c", ".h", ".mp3", ".m4a", ".ogg", ".flac", ".php", ".lua", ".sql":
+            return brightBlue + icon + reset
+        case ".cs", ".mp4", ".mkv", ".webm", ".org":
+            return darkMagenta + icon + reset
+        case ".png", ".jpg", ".jpeg", ".JPG", ".webp":
+            return darkBlue + icon + reset
+        case ".gif", ".xcf", ".el":
+            return magenta + icon + reset
+        case ".xml":
+            return lightCyan + icon + reset
+        case ".htm", ".html", ".java", ".jar", ".git", ".ps", ".eps":
+            return orange + icon + reset
+        case ".txt", ".app":
+            return white + icon + reset
+        case ".zip", ".tar", ".gz", ".bz2", ".xz", ".7z", ".svg":
+            return lightPurple + icon + reset
+        case ".js":
+            return yellow + icon + reset
+        case ".json", ".tiff":
+            return brightYellow + icon + reset
+        case ".py":
+            return darkYellow + icon + reset
+        case ".yml", ".yaml", ".pdf", ".db":
+            return brightRed + icon + reset
+        case ".toml", ".zig":
+            return darkOrange + icon + reset
+        case ".deb":
+            return lightRed + icon + reset
+        case ".md", ".epub":
+            return cyan + icon + reset
+        case ".rb", ".cmake", ".pl":
+            return red + icon + reset
+        case ".xbps", ".vim":
+            return darkGreen + icon + reset
+        case ".conf", ".bat", ".rs":
+            return darkGray + icon + reset
+        case ".iso":
+            return gray + icon + reset
+        case ".exe":
+            return brightCyan + icon + reset
         case ".1":
             return lightBrown + icon + reset
-		default:
-			return icon
-		}
-	}
+        default:
+            return icon
+        }
+    }
 
-	if mode&os.ModePerm&0111 != 0 {
-		return green + " " + reset
-	}
+    if mode&os.ModePerm&0111 != 0 {
+        return green + " " + reset
+    }
 
-	return " " + reset
+    return " " + reset
 }
 
 func getFileNameAndExtension(file os.DirEntry) (string, string) {
-	ext := filepath.Ext(file.Name())
-	name := strings.TrimSuffix(file.Name(), ext)
-	return name, ext
+    ext := filepath.Ext(file.Name())
+    name := strings.TrimSuffix(file.Name(), ext)
+    return name, ext
 }
 
 func getSpecialFileIcon(fileName string) (string, bool) {
-	icon, found := specialFileIcons[fileName]
-	return icon, found
+    icon, found := specialFileIcons[fileName]
+    return icon, found
 }
 
 func printSummary(files []os.DirEntry, directory string) {
-	fileCount, dirCount, symlinkFileCount, symlinkDirCount := 0, 0, 0, 0
+    fileCount, dirCount, symlinkFileCount, symlinkDirCount := 0, 0, 0, 0
 
-	for _, file := range files {
-		if file.Type()&os.ModeSymlink != 0 {
-			linkTarget, err := os.Readlink(filepath.Join(directory, file.Name()))
-			if err == nil {
-				targetInfo, err := os.Stat(filepath.Join(directory, linkTarget))
-				if err == nil && targetInfo.IsDir() {
-					symlinkDirCount++
-				} else {
-					symlinkFileCount++
-				}
-			}
-		} else if file.IsDir() {
-			dirCount++
-		} else {
-			fileCount++
-		}
-	}
+    for _, file := range files {
+        if file.Type()&os.ModeSymlink != 0 {
+            linkTarget, err := os.Readlink(filepath.Join(directory, file.Name()))
+            if err == nil {
+                targetInfo, err := os.Stat(filepath.Join(directory, linkTarget))
+                if err == nil && targetInfo.IsDir() {
+                    symlinkDirCount++
+                } else {
+                    symlinkFileCount++
+                }
+            }
+        } else if file.IsDir() {
+            dirCount++
+        } else {
+            fileCount++
+        }
+    }
 
-	fmt.Printf(iconDirectory + " Directories: %s%d%s\n", blue, dirCount, reset)
-	fmt.Printf(iconOther + " Files: %s%d%s\n", red, fileCount, reset)
+    fmt.Printf(iconDirectory + " Directories: %s%d%s\n", blue, dirCount, reset)
+    fmt.Printf(iconOther + " Files: %s%d%s\n", red, fileCount, reset)
 
-	if symlinkDirCount > 0 {
-		fmt.Printf(iconSymlinkDir + " Symlinked Directories: %s%d%s\n", magenta, symlinkDirCount, reset)
-	}
-	if symlinkFileCount > 0 {
-		fmt.Printf(iconSymlinkFile + " Symlinked Files: %s%d%s\n", cyan, symlinkFileCount, reset)
-	}
+    if symlinkDirCount > 0 {
+        fmt.Printf(iconSymlinkDir + " Symlinked Directories: %s%d%s\n", magenta, symlinkDirCount, reset)
+    }
+    if symlinkFileCount > 0 {
+        fmt.Printf(iconSymlinkFile + " Symlinked Files: %s%d%s\n", cyan, symlinkFileCount, reset)
+    }
 }
 
 func printTree(path, prefix string, isLast bool, currentDepth, maxDepth int) (totalFiles, totalDirs int) {
