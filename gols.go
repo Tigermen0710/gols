@@ -870,9 +870,9 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
 			symlinkTarget := filepath.Join(directory, linkTarget)
 			targetInfo, err := os.Stat(symlinkTarget)
 			if err == nil && targetInfo.IsDir() {
-				return brightMagenta + " " + reset
+				return iconSymlinkDir
 			} else {
-				return brightCyan + " " + reset
+				return iconSymlinkFile
 			}
 		}
 	}
@@ -967,61 +967,6 @@ func getSpecialFileIcon(fileName string) (string, bool) {
 	return icon, found
 }
 
-func printTree(path, prefix string, isLast bool, currentDepth, maxDepth int) (totalFiles, totalDirs int, allFiles []os.DirEntry) {
-	if maxDepth != -1 && currentDepth > maxDepth {
-		return 0, 0, nil
-	}
-
-	files, err := os.ReadDir(path)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var filteredFiles []os.DirEntry
-	for _, file := range files {
-		if showHidden || !strings.HasPrefix(file.Name(), ".") {
-			filteredFiles = append(filteredFiles, file)
-		}
-	}
-
-	for i, file := range filteredFiles {
-		isLastFile := i == len(filteredFiles)-1
-		if isLastFile {
-			fmt.Printf("%s└── ", prefix)
-		} else {
-			fmt.Printf("%s├── ", prefix)
-		}
-
-		maxFileNameLength := getMaxNameLength(filteredFiles)
-		printFile(file, path, maxFileNameLength, true)
-		fmt.Println()
-
-		allFiles = append(allFiles, file)
-
-		if file.IsDir() {
-			newPrefix := prefix
-			if isLastFile {
-				newPrefix += "    "
-			} else {
-				newPrefix += "│   "
-			}
-			subFiles, subDirs, subAllFiles := printTree(filepath.Join(path, file.Name()), newPrefix, isLastFile, currentDepth+1, maxDepth)
-			totalFiles += subFiles
-			totalDirs += subDirs + 1
-			allFiles = append(allFiles, subAllFiles...)
-		} else {
-			totalFiles++
-		}
-	}
-
-	if currentDepth == 0 && showSummary {
-		fmt.Println()
-		printSummary(allFiles, path)
-	}
-
-	return totalFiles, totalDirs, allFiles
-}
-
 func printSummary(files []os.DirEntry, directory string) {
 	fileCount, dirCount, symlinkFileCount, symlinkDirCount := 0, 0, 0, 0
 
@@ -1052,4 +997,71 @@ func printSummary(files []os.DirEntry, directory string) {
 	if symlinkFileCount > 0 {
 		fmt.Printf(iconSymlinkFile + " Symlinked Files: %s%d%s\n", cyan, symlinkFileCount, reset)
 	}
+}
+
+func printTree(path, prefix string, isLast bool, currentDepth, maxDepth int) (totalFiles, totalDirs int) {
+    if maxDepth != -1 && currentDepth > maxDepth {
+        return 0, 0
+    }
+
+    files, err := os.ReadDir(path)
+    if err != nil {
+        if os.IsPermission(err) {
+            fmt.Printf("%sError: Permission denied for %s%s\n", red, path, reset)
+        } else {
+            fmt.Printf("%sError reading directory %s: %v%s\n", red, path, err, reset)
+        }
+        return 0, 0
+    }
+
+    var filteredFiles []os.DirEntry
+    for _, file := range files {
+        if showHidden || !strings.HasPrefix(file.Name(), ".") {
+            filteredFiles = append(filteredFiles, file)
+        }
+    }
+
+    for i, file := range filteredFiles {
+        isLastFile := i == len(filteredFiles)-1
+        if isLastFile {
+            fmt.Printf("%s└── ", prefix)
+        } else {
+            fmt.Printf("%s├── ", prefix)
+        }
+
+        maxFileNameLength := getMaxNameLength(filteredFiles)
+        printFile(file, path, maxFileNameLength, true)
+        fmt.Println()
+
+        if file.Type()&os.ModeSymlink != 0 {
+            linkTarget, err := os.Readlink(filepath.Join(path, file.Name()))
+            if err == nil {
+                fmt.Printf("%s%s ==> %s%s\n", prefix, cyan, linkTarget, reset)
+            } else {
+                fmt.Printf("%s%s %s%s\n", prefix, red, "==> error", reset)
+            }
+        }
+
+        if file.IsDir() {
+            newPrefix := prefix
+            if isLastFile {
+                newPrefix += "    "
+            } else {
+                newPrefix += "│   "
+            }
+            subPath := filepath.Join(path, file.Name())
+            subFiles, subDirs := printTree(subPath, newPrefix, isLastFile, currentDepth+1, maxDepth)
+            totalFiles += subFiles
+            totalDirs += subDirs + 1
+        } else {
+            totalFiles++
+        }
+    }
+
+    if currentDepth == 0 && showSummary {
+        fmt.Println()
+        printSummary(filteredFiles, path)
+    }
+
+    return totalFiles, totalDirs
 }
