@@ -1,6 +1,10 @@
 package main
 
 const (
+    version = "gols: 1.4.2"
+)
+
+const (
     reset         = "\033[0m"
     black         = "\033[30m"
     red           = "\033[31m"
@@ -194,6 +198,7 @@ var (
     }
 
     specialFileIcons = map[string]string{
+        "default":          white + "󱁹 " + reset,
         "Makefile":         darkBlue + " " + reset,
         "Dockerfile":       blue + " " + reset,
         "LICENSE":          gray + " " + reset,
@@ -210,8 +215,15 @@ var (
         ".gitattributes":   darkOrange + " " + reset,
         ".xinitrc":         lightGray + " " + reset,
         ".bashrc":          lightGray + "󱆃 " + reset,
+        ".bash_profile":    lightGray + "󱆃 " + reset,
+        ".bash_history":    lightGray + " " + reset,
         ".zshrc":           lightGray + "󱆃 " + reset,
         ".vscode":          blue + " " + reset,
+        ".vimrc":           darkGreen + " " + reset,
+        ".yarnrc":          lightRed + " " + reset,
+        ".npmrc":           red + " " + reset,
+        ".emacs":           magenta + " " + reset,
+        ".inputrc":         lightGray + " " + reset,
     }
 )
 

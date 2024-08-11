@@ -13,10 +13,6 @@ import (
     "unsafe"
 )
 
-const (
-    version = "gols: 1.4.2"
-)
-
 var (
     longListing         bool
     humanReadable       bool
@@ -866,6 +862,11 @@ func getDirectoryIcon(directory string) string {
     return directoryIcons["default"]
 }
 
+func getSpecialFileIcon(fileName string) (string, bool) {
+    icon, found := specialFileIcons[fileName]
+    return icon, found
+}
+
 func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
     if file.Type()&os.ModeSymlink != 0 {
         linkTarget, err := os.Readlink(filepath.Join(directory, file.Name()))
@@ -893,8 +894,6 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
     icon, exists := fileIcons[ext]
     if exists {
         switch ext {
-        case ".go":
-            return cyan + icon + reset
         case ".sh", ".ps1":
             if mode&os.ModePerm&0111 != 0 {
                 return brightGreen + icon + reset
@@ -909,7 +908,7 @@ func getFileIcon(file os.DirEntry, mode os.FileMode, directory string) string {
             return brightBlue + icon + reset
         case ".png", ".jpg", ".jpeg", ".JPG", ".webp", ".R", ".ts", ".bmp":
             return darkBlue + icon + reset
-        case ".md", ".epub", ".obj":
+        case ".md", ".epub", ".obj", ".go":
             return cyan + icon + reset
         case ".xml":
             return lightCyan + icon + reset
@@ -967,11 +966,6 @@ func getFileNameAndExtension(file os.DirEntry) (string, string) {
     ext := filepath.Ext(file.Name())
     name := strings.TrimSuffix(file.Name(), ext)
     return name, ext
-}
-
-func getSpecialFileIcon(fileName string) (string, bool) {
-    icon, found := specialFileIcons[fileName]
-    return icon, found
 }
 
 func printSummary(files []os.DirEntry, directory string) {
