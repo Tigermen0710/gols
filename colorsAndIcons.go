@@ -1,6 +1,10 @@
 package main
 
 const (
+    version = "gols: 1.4.2"
+)
+
+const (
     reset         = "\033[0m"
     black         = "\033[30m"
     red           = "\033[31m"
@@ -72,6 +76,7 @@ var (
         ".m4a":         "󱀞 ",
         ".ogg":         " ",
         ".flac":        " ",
+        ".wav":         " ",
         ".mp4":         " ",
         ".mkv":         " ",
         ".webm":        "󰃽 ",
@@ -125,7 +130,7 @@ var (
         ".tex":         " ",
         ".bash":        " ",
         ".jai":         "󱢢 ",
-        ".r":           " ",
+        ".R":           " ",
         ".swift":       "󰛥 ",
         ".hs":          "󰲒 ",
         ".v":           " ",
@@ -134,6 +139,34 @@ var (
         ".lock":        "󰈡 ",
         ".ts":          " ",
         ".tmux.conf":   " ",
+        ".1":           "󰈚 ",
+        ".asm":         " ",
+        ".dart":        " ",
+        ".scala":       " ",
+        ".erl":         " ",
+        ".ex":          " ",
+        ".f90":         "󱈚 ",
+        ".gd":          " ",
+        ".groovy":      " ",
+        ".kt":          " ",
+        ".lisp":        "󰅲 ",
+        ".m":           " ",
+        ".ml":          " ",
+        ".nim":         " ",
+        ".ps1":         "󰨊 ",
+        ".ejs":         " ",
+        ".torrent":     "󰥥 ",
+        ".cfg":         " ",
+        ".rst":         " ",
+        ".build":       "󱉯 ",
+        ".desktop":     "󰟀 ",
+        ".mk":          " ",
+        ".fish":        " ",
+        ".m4":          "󰦨 ",
+        ".o":           " ",
+        ".nix":         "󱄅 ",
+        ".bmp":         " ",
+        ".obj":         " ",
     }
 
     directoryIcons = map[string]string{
@@ -165,23 +198,39 @@ var (
     }
 
     specialFileIcons = map[string]string{
+        "default":          white + "󱁹 " + reset,
         "Makefile":         darkBlue + " " + reset,
         "Dockerfile":       blue + " " + reset,
         "LICENSE":          gray + " " + reset,
         "config":           lightGray + " " + reset,
         "PKGBUILD":         brightBlue + "󰣇 " + reset,
         "Gemfile":          brightRed + " " + reset,
+        "template":         darkRed + " " + reset,
+        "TODO":             lightCyanBlue + " " + reset,
+        "CHANGELOG":        lightGray + " " + reset,
+        "FAQ":              lightGray + "󰦨 " + reset,
+        "LEGACY":           lightBrown + "󰦨 " + reset,
         ".gitconfig":       darkOrange + " " + reset,
         ".gitignore":       darkOrange + " " + reset,
         ".gitattributes":   darkOrange + " " + reset,
         ".xinitrc":         lightGray + " " + reset,
         ".bashrc":          lightGray + "󱆃 " + reset,
+        ".bash_profile":    lightGray + "󱆃 " + reset,
+        ".bash_history":    lightGray + " " + reset,
         ".zshrc":           lightGray + "󱆃 " + reset,
         ".vscode":          blue + " " + reset,
+        ".vimrc":           darkGreen + " " + reset,
+        ".yarnrc":          lightRed + " " + reset,
+        ".npmrc":           red + " " + reset,
+        ".emacs":           magenta + " " + reset,
+        ".inputrc":         lightGray + " " + reset,
     }
 )
 
 var (
-    iconOther              = "\033[31m \033[0m"
-    iconDirectory          = "\033[34m \033[0m"
+    iconOther               = "\033[31m \033[0m"
+    iconDirectory           = "\033[34m \033[0m"
+    iconSymlinkDir          = "\033[38;5;198m \033[0m"
+    iconSymlinkFile         = "\033[36m \033[0m"
+    iconTotal               = "\033[38;5;208m󰰤 \033[0m"
 )
