@@ -36,6 +36,7 @@ var (
     excludedExts        []string
     onlyPermissions     bool
     showOwner           bool
+    getTime             bool
 )
 
 type winsize struct {
@@ -154,6 +155,8 @@ func main() {
         printPermissionsWithIcons(files, directory)
     } else if showOwner {
         printOwner(files, directory)
+    } else if getTime {
+        printTime(files, directory)
     } else if recursiveListing {
         printTree(directory, "", true, 0, maxDepth)
     } else if longListing {
@@ -442,6 +445,8 @@ func parseFlags(args []string) ([]string, bool, bool) {
                     case 't':
                         orderByTime = true
                         hasSpecificFlags = true
+                    case 'T':
+                        getTime = true
                     case 'm':
                         showOnlySymlinks = true
                         hasSpecificFlags = true
@@ -674,6 +679,23 @@ func printOwner(files []os.DirEntry, directory string) {
         fileName := file.Name()
 
         fmt.Printf("%s %s %s\n", ownerStr, icon, fileName)
+    }
+}
+
+func printTime(files []os.DirEntry, directory string) {
+    for _, file := range files {
+        info, err := file.Info()
+        if err != nil {
+            log.Fatal(err)
+        }
+
+        modTime := info.ModTime()
+        timeStr := modTime.Format("15:04:05")
+        dateStr := modTime.Format("2006-01-02")
+        icon := getFileIcon(file, info.Mode(), directory)
+        fileName := file.Name()
+
+        fmt.Printf("%s %s %s %s\n", dateStr, timeStr, icon, fileName)
     }
 }
 
