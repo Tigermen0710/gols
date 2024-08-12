@@ -34,6 +34,7 @@ var (
     extFlag             string
     excludeExtensions   bool
     excludedExts        []string
+    onlyPermissions     bool
 )
 
 type winsize struct {
@@ -148,7 +149,9 @@ func main() {
         })
     }
 
-    if recursiveListing {
+    if onlyPermissions {
+        printPermissionsWithIcons(files, directory)
+    } else if recursiveListing {
         printTree(directory, "", true, 0, maxDepth)
     } else if longListing {
         printLongListing(files, directory, humanReadable)
@@ -429,6 +432,8 @@ func parseFlags(args []string) ([]string, bool, bool) {
                     case 'o':
                         orderBySize = true
                         hasSpecificFlags = true
+                    case 'p':
+                        onlyPermissions = true
                     case 't':
                         orderByTime = true
                         hasSpecificFlags = true
@@ -628,6 +633,22 @@ func formatSize(size int64, humanReadable bool) string {
         default:
             return fmt.Sprintf("%d B", size)
         }
+    }
+}
+
+func printPermissionsWithIcons(files []os.DirEntry, directory string) {
+    for _, file := range files {
+        info, err := file.Info()
+        if err != nil {
+            log.Fatal(err)
+        }
+
+        permissions := formatPermissions(file, info.Mode(), directory)
+        permissions = green + permissions + reset
+
+        iconAndName := getFileIcon(file, info.Mode(), directory) + " " + file.Name()
+
+        fmt.Printf("%s %s\n", permissions, iconAndName)
     }
 }
 
