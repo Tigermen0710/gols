@@ -152,7 +152,7 @@ func main() {
     }
 
     if onlyPermissions {
-        printPermissionsWithIcons(files, directory)
+        printPermissions(files, directory)
     } else if showOwner {
         printOwner(files, directory)
     } else if getTime {
@@ -646,7 +646,7 @@ func formatSize(size int64, humanReadable bool) string {
     }
 }
 
-func printPermissionsWithIcons(files []os.DirEntry, directory string) {
+func printPermissions(files []os.DirEntry, directory string) {
     for _, file := range files {
         info, err := file.Info()
         if err != nil {
@@ -659,6 +659,11 @@ func printPermissionsWithIcons(files []os.DirEntry, directory string) {
         iconAndName := getFileIcon(file, info.Mode(), directory) + " " + file.Name()
 
         fmt.Printf("%s %s\n", permissions, iconAndName)
+    }
+
+    if showSummary {
+        fmt.Println()
+        printSummary(files, directory)
     }
 }
 
@@ -680,6 +685,10 @@ func printOwner(files []os.DirEntry, directory string) {
 
         fmt.Printf("%s %s %s\n", ownerStr, icon, fileName)
     }
+    if showSummary {
+        fmt.Println()
+        printSummary(files, directory)
+    }
 }
 
 func printTime(files []os.DirEntry, directory string) {
@@ -696,6 +705,10 @@ func printTime(files []os.DirEntry, directory string) {
         fileName := file.Name()
 
         fmt.Printf("%s %s %s %s\n", dateStr, timeStr, icon, fileName)
+    }
+    if showSummary {
+        fmt.Println()
+        printSummary(files, directory)
     }
 }
 
