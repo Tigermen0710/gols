@@ -35,6 +35,7 @@ var (
     excludeExtensions   bool
     excludedExts        []string
     onlyPermissions     bool
+    showOwner           bool
 )
 
 type winsize struct {
@@ -151,6 +152,8 @@ func main() {
 
     if onlyPermissions {
         printPermissionsWithIcons(files, directory)
+    } else if showOwner {
+        printOwner(files, directory)
     } else if recursiveListing {
         printTree(directory, "", true, 0, maxDepth)
     } else if longListing {
@@ -434,6 +437,8 @@ func parseFlags(args []string) ([]string, bool, bool) {
                         hasSpecificFlags = true
                     case 'p':
                         onlyPermissions = true
+                    case 'O':
+                        showOwner = true
                     case 't':
                         orderByTime = true
                         hasSpecificFlags = true
@@ -649,6 +654,26 @@ func printPermissionsWithIcons(files []os.DirEntry, directory string) {
         iconAndName := getFileIcon(file, info.Mode(), directory) + " " + file.Name()
 
         fmt.Printf("%s %s\n", permissions, iconAndName)
+    }
+}
+
+func printOwner(files []os.DirEntry, directory string) {
+    for _, file := range files {
+        info, err := file.Info()
+        if err != nil {
+            log.Fatal(err)
+        }
+
+        owner, err := user.LookupId(fmt.Sprintf("%d", info.Sys().(*syscall.Stat_t).Uid))
+        if err != nil {
+            log.Fatal(err)
+        }
+
+        ownerStr := cyan + owner.Username + reset
+        icon := getFileIcon(file, info.Mode(), directory)
+        fileName := file.Name()
+
+        fmt.Printf("%s %s %s\n", ownerStr, icon, fileName)
     }
 }
 
