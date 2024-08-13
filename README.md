@@ -109,9 +109,12 @@ gols [FLAG] [DIRECTORY] [FILES]
 | -l   | long listing                                                 | ![image](https://github.com/user-attachments/assets/98a41e56-92b5-46ad-8780-e3c611476207)       |
 | -m   | only show symbolik links                                     | ![image](https://i.postimg.cc/N2f5FZ1s/symlink.png)                                             |
 | -o   | sort files by size                                           | ![image](https://github.com/user-attachments/assets/80e7ce61-b606-413e-9407-f71c812a54a3)       |
+| -O   | show the owner of the file                                   | ![image](https://i.postimg.cc/vBRgzmrP/O.png) |
+| -p   | get only the permissions                                     | ![image](https://i.postimg.cc/bvSSkntD/p.png) |
 | -r   | tree like listing, and d number to do the depth (gols -rd 1) | ![image](https://i.postimg.cc/rsdQLxW4/tree.png) ![image](https://i.postimg.cc/PJ5NmZC4/rd.png) |
 | -s   | show files size                                              | ![image](https://github.com/user-attachments/assets/433e18af-b869-4bfc-982a-6528341895a9)       |
 | -t   | order all by time                                            | ![image](https://github.com/user-attachments/assets/7037b518-c08a-464c-847e-486966bfa7ff)       |
+| -T   | show the only the time                                       | ![image](https://i.postimg.cc/ZRr9DhjJ/T.png) |
 | -v   | version number                                               |                                                                                                 |
 | -x   | exclude files from the listing using there extention         | ![image](https://i.postimg.cc/90Cy41m1/x.png)                                                   |
 
