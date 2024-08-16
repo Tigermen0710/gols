@@ -1,7 +1,7 @@
 package main
 
 const (
-	version = "gols: 1.4.3"
+	version = "gols: 1.4.4"
 )
 
 const (
