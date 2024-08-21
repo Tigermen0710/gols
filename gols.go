@@ -37,6 +37,7 @@ var (
     onlyPermissions     bool
     showOwner           bool
     getTime             bool
+    showGroup           bool
 )
 
 type winsize struct {
@@ -151,7 +152,9 @@ func main() {
         })
     }
 
-    if onlyPermissions {
+    if showGroup {
+        printGroups(files, directory)
+    } else if onlyPermissions {
         printPermissions(files, directory)
     } else if showOwner {
         printOwner(files, directory)
@@ -433,6 +436,8 @@ func parseFlags(args []string) ([]string, bool, bool) {
                     case 'h':
                         humanReadable = true
                         hasSpecificFlags = true
+                    case 'g':
+                        showGroup = true
                     case 's':
                         fileSize = true
                     case 'o':
@@ -709,6 +714,58 @@ func printTime(files []os.DirEntry, directory string) {
     if showSummary {
         fmt.Println()
         printSummary(files, directory)
+    }
+}
+
+func printGroups(files []os.DirEntry, directory string) {
+    maxLen := map[string]int{
+        "group": 0,
+    }
+
+    var filteredFiles []os.DirEntry
+    for _, file := range files {
+        info, err := file.Info()
+        if err != nil {
+            log.Fatal(err)
+        }
+
+        group, err := user.LookupGroupId(fmt.Sprintf("%d", info.Sys().(*syscall.Stat_t).Gid))
+        if err != nil {
+            log.Fatal(err)
+        }
+
+        maxLen["group"] = max(maxLen["group"], len(group.Name))
+
+        filteredFiles = append(filteredFiles, file)
+    }
+
+    for _, file := range filteredFiles {
+        info, err := file.Info()
+        if err != nil {
+            log.Fatal(err)
+        }
+
+        group, err := user.LookupGroupId(fmt.Sprintf("%d", info.Sys().(*syscall.Stat_t).Gid))
+        if err != nil {
+            log.Fatal(err)
+        }
+
+        groupStr := brightBlue + group.Name + reset
+        icon := getFileIcon(file, info.Mode(), directory)
+
+        line := fmt.Sprintf(
+            "%-*s %s %s",
+            maxLen["group"], groupStr,
+            icon,
+            file.Name(),
+        )
+
+        fmt.Println(line)
+    }
+
+    if showSummary {
+        fmt.Println()
+        printSummary(filteredFiles, directory)
     }
 }
 
@@ -1081,7 +1138,7 @@ func printSummary(files []os.DirEntry, directory string) {
     }
 
     total := dirCount + fileCount + symlinkDirCount + symlinkFileCount
-    fmt.Printf(iconTotal + ":%s%d%s\n", brightGreen, total, reset)
+    fmt.Printf( "TOTAL" + ":%s%d%s\n", brightGreen, total, reset)
 }
 
 func printTree(path, prefix string, isLast bool, currentDepth, maxDepth int) (totalFiles, totalDirs int) {

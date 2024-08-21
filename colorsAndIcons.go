@@ -210,6 +210,7 @@ var (
         ".npm":         "",
         ".vim":         "",
         ".local":       "󱂀",
+        ".wine":        "󰡶",
     }
 
 	specialFileIcons = map[string]string{
@@ -249,5 +250,4 @@ var (
 	iconDirectory   = "\033[34m \033[0m"
 	iconSymlinkDir  = "\033[38;5;198m \033[0m"
 	iconSymlinkFile = "\033[36m \033[0m"
-	iconTotal       = "\033[38;5;208m󰰤 \033[0m"
 )

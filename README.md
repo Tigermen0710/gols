@@ -105,7 +105,9 @@ gols [FLAG] [DIRECTORY] [FILES]
 | -e   | list files based on there extention                          | ![image](https://i.postimg.cc/fLxxT1NJ/e.png)                                                   |
 | -f   | show a summary of file and directories                       | ![image](https://i.postimg.cc/gcL2ZFDf/ff.png)                                                  |
 | -F   | list files only                                              | ![image](https://i.postimg.cc/Z5FbcDCS/F.png)                                                   |
+| -h   | Only for long listing to show the size in a human-readable format |   |
 | -i   | show directory icon on left                                  | ![image](https://i.postimg.cc/Z0tKKdX7/i.png)                                                   |
+| -g   | Show the group only                                          | ![image](https://i.postimg.cc/ZKsYgKXL/g.png)                                                   |
 | -l   | long listing                                                 | ![image](https://github.com/user-attachments/assets/98a41e56-92b5-46ad-8780-e3c611476207)       |
 | -m   | only show symbolik links                                     | ![image](https://i.postimg.cc/N2f5FZ1s/symlink.png)                                             |
 | -o   | sort files by size                                           | ![image](https://github.com/user-attachments/assets/80e7ce61-b606-413e-9407-f71c812a54a3)       |
