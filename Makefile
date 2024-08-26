@@ -17,6 +17,7 @@ install: build
 	@echo "Installing $(BINARY_NAME) to /usr/local/bin..."
 	@sudo install -m 0755 $(BINARY_NAME) /usr/local/bin/$(BINARY_NAME)
 	@echo "Installing man page to $(MAN_DIR)..."
+	@sudo mkdir -p $(MAN_DIR)
 	@sudo install -m 0644 $(MAN_PAGE) $(MAN_DIR)/$(MAN_PAGE)
 	@echo "Installation complete."
 

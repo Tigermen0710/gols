@@ -880,6 +880,13 @@ func printLongListing(files []os.DirEntry, directory string, humanReadable bool)
     }
 }
 
+func max(a, b int) int {
+    if a > b {
+        return a
+    }
+    return b
+}
+
 func countFilesAndDirs(files []os.DirEntry) (int, int) {
     fileCount := 0
     dirCount := 0
