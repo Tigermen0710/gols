@@ -15,9 +15,9 @@ This program lists the files and directories in the current working directory wi
 - Size of files.
 - Options to show directories or files only.
 - Summary of files and directories.
-- List file based on extention ```gols /path/to/dir/ .go``` to list all go files.
-- Exlude files using there extention ```gols -x go,txt ...```.
-- Use the extention to list files ```gols -e go``` to list golang files.
+- List file based on extention `gols /path/to/dir/ .go` to list all go files.
+- Exlude files using there extention `gols -x go,txt ...`.
+- Use the extention to list files `gols -e go` to list golang files.
 
 ## Table of Contents
 
@@ -72,10 +72,11 @@ yay -S gols
 
 ##### Void
 
-Assuming you have void-packages.
+Assuming you have [void-packages](https://github.com/void-linux/void-packages).
 ```bash
 git clone https://github.com/elbachir-one/void-templates
-cp void-templates/gols/ void-packages/srcpkgs/ # Copying the gols directory that has the template.
+cp -r void-templates/gols/ void-packages/srcpkgs/   # Copying the gols directory that has the template.
+cd void-packages/
 ./xbps-src pkg gols
 sudo xbps-install -R hostdir/binpkgs gols
 ```
