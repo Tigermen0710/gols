@@ -124,7 +124,9 @@ func main() {
         files = filterSymlinks(files, directory)
     }
 
-    if listDirsOnly {
+    if listDirsOnly && listHiddenOnly {
+        files = filterHiddenOnly(files)
+    } else if listDirsOnly {
         files = filterDirectories(files)
     } else if listFilesOnly {
         files = filterNonDirectories(files)
